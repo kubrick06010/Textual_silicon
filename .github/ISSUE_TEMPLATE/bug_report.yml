@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a reproducible problem in Textual Silicon
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting a problem. Do not include credentials, license keys, or private logs.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: Release version or commit SHA
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: macOS version, Mac model, and Intel or Apple silicon
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open …
+        2. Select …
+        3. Observe …
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or screenshots
+      description: Remove all private or identifying information before attaching anything.

@@ -1,0 +1,9 @@
+title: Textual Silicon Documentation
+description: User and developer documentation for Textual Silicon.
+url: https://kubrick06010.github.io
+baseurl: /Textual_silicon
+markdown: kramdown
+permalink: pretty
+
+exclude:
+  - README.md
