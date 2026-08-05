@@ -1,34 +1,36 @@
-> [!IMPORTANT]
-> Textual is no longer being actively maintained. For the life of the project, it only ever had one full time maintainer whom has now moved on to different ventures in their life. To all that have contributed to Textual in some form in the past; be it a suggestion, bug report, pull request, financial support, or some other form of contribution, you will forever be loved. Thank you so much. Words cannot properly express the gratitude we have for every single user. 
+# Textual Silicon [![GitHub release](https://img.shields.io/github/v/release/kubrick06010/Textual_silicon)](https://github.com/kubrick06010/Textual_silicon/releases) ![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)
 
-# Textual [![GitHub release](https://img.shields.io/github/tag/Codeux-Software/Textual.svg)](https://github.com/Codeux-Software/Textual/blob/master) [![Platform](https://img.shields.io/badge/platform-OS%20X-lightgrey.svg)](http://www.textualapp.com/mac-app-store)
+> [!IMPORTANT]
+> This is an independent community project. It is not affiliated with, endorsed by, or supported by Codeux Software, LLC.
 
 Textual is a highly customizable app for interacting with Internet Relay Chat (IRC) chatrooms on macOS.
 
-Textual can be customized with styles written in CSS, HTML, and JavaScript; [plugins](https://help.codeux.com/textual/Writing-Plugins.kb) written in Objective-C & Swift, and [scripts](https://help.codeux.com/textual/Writing-Scripts.kb) written in AppleScript (plus many other languages)
+Textual can be customized with styles written in CSS, HTML, and JavaScript; plugins written in Objective-C and Swift; and scripts written in AppleScript and other languages.
 
-Precompiled versions of Textual can be purchased in the [directly from codeux.com](https://www.textualapp.com/).
+## Automated builds
 
-## Screenshots
+GitHub Actions builds the app for Apple silicon on every pull request and push
+to `master`. Pushing a tag whose name starts with `v` (for example, `v7.2.7-1`)
+also creates a GitHub prerelease containing the app and its SHA-256 checksum.
 
-[![Light Screenshot](https://www.codeux.com/textual/private/images/v600media/YosemiteLightThumbnail.png)](https://www.codeux.com/textual/private/images/v600media/YosemiteLightFullscreen.png) 
-[![Dark Screenshot](https://www.codeux.com/textual/private/images/v600media/YosemiteDarkThumbnail.png)](https://www.codeux.com/textual/private/images/v600media/YosemiteDarkFullscreen.png)
+The automated artifact is currently unsigned and not notarized. It is published
+as a prerelease until the project uses its own Apple Developer identity, bundle
+identifiers, and entitlements.
 
 ## Resources
 
-- [Homepage](https://codeux.com/textual)
-- [Frequently Asked Questions](https://help.codeux.com/textual/Frequently-Asked-Questions.kb)
-- [Support](https://help.codeux.com/textual/Support.kb)
+- [Repository](https://github.com/kubrick06010/Textual_silicon)
+- [Documentation](https://kubrick06010.github.io/Textual_silicon/)
+- [Issues and support](https://github.com/kubrick06010/Textual_silicon/issues)
 - \#textual on irc.libera.chat
-- Guides: [Writing Plugins](https://help.codeux.com/textual/Writing-Plugins.kb), [Writing Scripts](https://help.codeux.com/textual/Writing-Scripts.kb)
 
 ## Note Regarding Downloading Source Code
 
 Textual is dependent on several other projects to build. This repository is automatically linked against these other projects using what are known as "submodules" — Clicking the "Download ZIP" button to build a copy of Textual will not download a copy of these projects. The source code must be cloned using [Github for Mac](https://mac.github.com/) or by using the following commands in Terminal:
 
 ```
-git clone https://github.com/Codeux-Software/Textual.git Textual
-cd Textual
+git clone https://github.com/kubrick06010/Textual_silicon.git
+cd Textual_silicon
 git submodule update --init --recursive
 ```
 
@@ -36,7 +38,7 @@ git submodule update --init --recursive
 
 **DO NOT change the Code Signing Identity setting through Xcode.** Textual uses a configuration file to specify the code signing identity. This allows it to be used across all projects associated with Textual without having to modify each.
 
-**DO** edit the file located at _[Configurations ➜ Build ➜ Code Signing Identity.xcconfig](https://github.com/Codeux-Software/Textual/blob/master/Configurations/Build/Code%20Signing%20Identity.xcconfig)_
+**DO** edit the file located at [Configurations/Build/Code Signing Identity.xcconfig](Configurations/Build/Code%20Signing%20Identity.xcconfig).
 
 **It is HIGHLY DISCOURAGED to turn off code signing.** Certain features rely on the fact that Textual is properly signed and is within a sandboxed environment.
 
@@ -52,7 +54,7 @@ If you do not have a license key, then set the ``TEXTUAL_BUILT_WITH_LICENSE_MANA
 
 The latest version of Textual requires two things to be built. One is a valid (does not need to be issued by Apple) code signing certificate. The second is an installation of Xcode 10.0 or newer on macOS High Sierra. **Building on anything earlier is not supported because of Swift 4.2 code.**
 
-**DO NOT change the Code Signing Identity setting through Xcode.** Modify the file located at _[Configurations ➜ Build ➜ Code Signing Identity.xcconfig](https://github.com/Codeux-Software/Textual/blob/master/Configurations/Build/Code%20Signing%20Identity.xcconfig)_ instead.
+**DO NOT change the Code Signing Identity setting through Xcode.** Modify [Configurations/Build/Code Signing Identity.xcconfig](Configurations/Build/Code%20Signing%20Identity.xcconfig) instead.
 
 Build Textual using the "Standard Release" build scheme.
 
