@@ -1284,7 +1284,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)offRecordMessagingOpenHelpDocument:(id)sender
 {
-	[TLOpenLink openWithString:@"https://help.codeux.com/textual/Off-the-Record-Messaging.kb"];
+	[TLOpenLink openWithString:@"https://kubrick06010.github.io/Textual_silicon/user-guide/#chat-encryption"];
 }
 #endif
 
