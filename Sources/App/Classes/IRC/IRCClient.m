@@ -140,6 +140,9 @@
 #import "IRCHighlightLogEntryPrivate.h"
 #import "IRCHighlightMatchCondition.h"
 #import "IRCISupportInfoPrivate.h"
+#import "IRCMonitorBatcher.h"
+#import "IRCMonitorReply.h"
+#import "IRCIsonResultApplicator.h"
 #import "IRCMessagePrivate.h"
 #import "IRCMessageBatchPrivate.h"
 #import "IRCModeInfo.h"
@@ -159,6 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
 #define _autojoinDelayedWarningMaxCount		3
 
 #define _isonCheckInterval			30
+#define _isonRoundTimeoutInterval	20
 #define _pingInterval				270
 #define _pongCheckInterval			30
 #define _reconnectInterval			20
@@ -218,12 +222,16 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 @property (nonatomic, strong) TLOTimer *autojoinNextJoinTimer;
 @property (nonatomic, strong) TLOTimer *autojoinDelayedWarningTimer;
 @property (nonatomic, strong) TLOTimer *isonTimer;
+@property (nonatomic, strong) TLOTimer *isonRoundTimeoutTimer;
 @property (nonatomic, strong) TLOTimer *pongTimer;
 @property (nonatomic, strong) TLOTimer *reconnectTimer;
 @property (nonatomic, strong) TLOTimer *retryTimer;
 @property (nonatomic, strong) TLOTimer *whoTimer;
 @property (nonatomic, assign) BOOL capabilityNegotiationIsPaused;
 @property (nonatomic, assign) BOOL invokingISONCommandForFirstTime;
+@property (nonatomic, assign) BOOL isonInitialTrackingRoundReserved;
+@property (nonatomic, assign) BOOL isonRequestsSuspended;
+@property (nonatomic, assign) BOOL monitorTrackingSuspended;
 @property (nonatomic, assign) BOOL isTerminating; // Is being destroyed
 @property (nonatomic, assign) BOOL inWhoisResponse;
 @property (nonatomic, assign) BOOL inWhowasResponse;
@@ -245,6 +253,7 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 @property (nonatomic, strong) IRCAddressBookMatchCache *addressBookMatchCache;
 @property (nonatomic, strong) IRCAddressBookUserTrackingContainer *trackedUsers;
 @property (nonatomic, strong) IRCClientRequestedCommands *requestedCommands;
+@property (nonatomic, strong) IRCIsonRoundCoordinator *isonRoundCoordinator;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, IRCTimedCommand *> *timedCommands;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, IRCUser *> *userListPrivate;
 @property (nonatomic, strong, nullable) NSMutableString *zncBouncerCertificateChainDataMutable;
@@ -252,6 +261,7 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 @property (nonatomic, assign) uint16_t temporaryServerPortOverride;
 @property (readonly) BOOL isBrokenIRCd_aka_Twitch;
 @property (readonly) BOOL monitorAwayStatus;
+@property (readonly) BOOL supportsMonitorTracking;
 @property (readonly) BOOL supportsAdvancedTracking;
 @property (readonly, copy) NSArray<NSString *> *nickServSupportedNeedIdentificationTokens;
 @property (readonly, copy) NSArray<NSString *> *nickServSupportedSuccessfulIdentificationTokens;
@@ -321,6 +331,7 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	self.trackedUsers = [[IRCAddressBookUserTrackingContainer alloc] initWithClient:self];
 
 	self.requestedCommands = [IRCClientRequestedCommands new];
+	self.isonRoundCoordinator = [IRCIsonRoundCoordinator new];
 
 	self.lastMessageServerTime = self.config.lastMessageServerTime;
 
@@ -344,6 +355,11 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	self.isonTimer =
 	[TLOTimer timerWithActionBlock:^(TLOTimer *sender) {
 		[self onISONTimer];
+	}];
+
+	self.isonRoundTimeoutTimer =
+	[TLOTimer timerWithActionBlock:^(TLOTimer *sender) {
+		[self onISONRoundTimeout];
 	}];
 
 	self.reconnectTimer =
@@ -377,6 +393,7 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	[self.autojoinNextJoinTimer stop];
 	[self.autojoinDelayedWarningTimer stop];
 	[self.isonTimer	stop];
+	[self.isonRoundTimeoutTimer stop];
 	[self.pongTimer	stop];
 	[self.reconnectTimer stop];
 	[self.retryTimer stop];
@@ -386,6 +403,7 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	self.autojoinNextJoinTimer = nil;
 	self.autojoinDelayedWarningTimer = nil;
 	self.isonTimer = nil;
+	self.isonRoundTimeoutTimer = nil;
 	self.pongTimer = nil;
 	self.reconnectTimer = nil;
 	self.retryTimer = nil;
@@ -402,6 +420,7 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	self.timedCommands = nil;
 	self.trackedUsers = nil;
 	self.requestedCommands = nil;
+	self.isonRoundCoordinator = nil;
 	self.userListPrivate = nil;
 
 	[self cancelPerformRequests];
@@ -954,9 +973,23 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	return [self.serverAddress hasSuffix:@".twitch.tv"];
 }
 
+- (BOOL)supportsMonitorTracking
+{
+	return ([self isCapabilityEnabled:ClientIRCv3SupportedCapabilityMonitorCommand] &&
+			self.monitorTrackingSuspended == NO);
+}
+
 - (BOOL)supportsAdvancedTracking
 {
-	return ([self isCapabilityEnabled:ClientIRCv3SupportedCapabilityMonitorCommand] ||
+	if (self.supportsMonitorTracking) {
+		return YES;
+	}
+
+	/* MONITOR is the preferred standardized mechanism. If a server advertised
+	 MONITOR and rejected it for this connection, use ISON rather than silently
+	 switching to a second vendor-specific tracking protocol. WATCH remains
+	 available for servers which do not advertise MONITOR. */
+	return ([self isCapabilityEnabled:ClientIRCv3SupportedCapabilityMonitorCommand] == NO &&
 			[self isCapabilityEnabled:ClientIRCv3SupportedCapabilityWatchCommand]);
 }
 
@@ -2660,6 +2693,31 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 {
 	NSParameterAssert(string != nil);
 
+	NSArray<NSString *> *lineComponents = [string componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	NSString *lineCommand = lineComponents.firstObject;
+
+	if ([lineCommand caseInsensitiveCompare:@"ISON"] == NSOrderedSame) {
+		NSMutableArray<NSString *> *nicknames = [NSMutableArray array];
+
+		for (NSUInteger index = 1; index < lineComponents.count; index++) {
+			NSString *nickname = lineComponents[index];
+
+			if (nickname.length > 0) {
+				[nicknames addObject:nickname];
+			}
+		}
+
+		BOOL accepted = [self enqueueIsonNicknames:nicknames
+							 kind:IRCIsonRequestKindManual
+						  context:nil
+						  initial:NO];
+
+		if (accepted) {
+			[self createHiddenCommandResponses];
+		}
+		return;
+	}
+
 	if (self.isConnected == NO) {
 		[self printDebugInformationToConsole:TXTLS(@"IRC[6rj-2r]")];
 
@@ -2671,6 +2729,44 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	worldController().bandwidthOut += string.length;
 
 	worldController().messagesSent += 1;
+}
+
+- (BOOL)sendIsonBatch:(IRCIsonBatch *)batch
+{
+	NSParameterAssert(batch != nil);
+
+	if (self.isConnected == NO || batch.encodedBody.length > TXMaximumIRCBodyLength) {
+		return NO;
+	}
+
+	if ([self.socket sendEncodedLine:batch.encodedBody] == NO) {
+		return NO;
+	}
+
+	worldController().bandwidthOut += (batch.encodedBody.length + 2);
+
+	worldController().messagesSent += 1;
+
+	return YES;
+}
+
+- (BOOL)sendMonitorBatch:(IRCMonitorBatch *)batch
+{
+	NSParameterAssert(batch != nil);
+
+	if (self.isConnected == NO || batch.encodedBody.length > TXMaximumIRCBodyLength) {
+		return NO;
+	}
+
+	if ([self.socket sendEncodedLine:batch.encodedBody] == NO) {
+		return NO;
+	}
+
+	worldController().bandwidthOut += (batch.encodedBody.length + 2);
+
+	worldController().messagesSent += 1;
+
+	return YES;
 }
 
 - (void)send:(NSString *)string arguments:(NSArray<NSString *> *)arguments
@@ -3672,11 +3768,23 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 				break;
 			}
 
-			[self createHiddenCommandResponses];
+			NSArray<NSString *> *components = [stringIn.string componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			NSMutableArray<NSString *> *nicknames = [NSMutableArray array];
 
-			[self.requestedCommands recordIsonRequestOpenedAsVisible];
+			for (NSString *nickname in components) {
+				if (nickname.length > 0) {
+					[nicknames addObject:nickname];
+				}
+			}
 
-			[self send:@"ISON", stringIn.string, nil];
+			BOOL accepted = [self enqueueIsonNicknames:nicknames
+							 kind:IRCIsonRequestKindManual
+						  context:nil
+						  initial:NO];
+
+			if (accepted) {
+				[self createHiddenCommandResponses];
+			}
 
 			break;
 		}
@@ -5579,6 +5687,8 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	self.connectDelay = 0;
 
 	self.invokingISONCommandForFirstTime = NO;
+	self.isonInitialTrackingRoundReserved = NO;
+	self.monitorTrackingSuspended = NO;
 
 	self.isAutojoining = NO;
 	self.isAutojoined = NO;
@@ -5659,6 +5769,10 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	[self stopAutojoinNextJoinTimer];
 	[self stopAutojoinDelayedWarningTimer];
 	[self stopISONTimer];
+	[self.isonRoundTimeoutTimer stop];
+	self.isonRoundTimeoutTimer.context = nil;
+	self.isonRequestsSuspended = NO;
+	[self.isonRoundCoordinator reset];
 	[self stopPongTimer];
 	[self stopRetryTimer];
 
@@ -8765,6 +8879,7 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	self.supportInfo.serverAddress = m.senderHostmask;
 
 	self.invokingISONCommandForFirstTime = YES;
+	self.isonInitialTrackingRoundReserved = NO;
 
 	self.reconnectEnabledBecauseOfSleepMode = NO;
 
@@ -9440,91 +9555,39 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 		}
 		case RPL_ISON:
 		{
-			/* Present reply to the user if we have destination */
-			BOOL visibleIsonRequest = self.requestedCommands.visibleIsonRequest;
+			IRCIsonRound *round = self.isonRoundCoordinator.activeRound;
 
-			[self.requestedCommands recordIsonRequestClosed];
-
-			if (visibleIsonRequest) {
-				if (printMessage) {
-					[self printReplyToHiddenCommandResponsesQuery:m];
-				}
-
-				/* It is important that we don't process logic for visible
-				 requests because if user does ISON for people that aren't
-				 on the tracked list and the logic below sees the response
-				 missing those, then it will think everyone tracked went offline. */
+			if (round == nil || self.isonRequestsSuspended) {
+				LogToConsoleDebug("Ignoring uncorrelated ISON reply");
 				break;
 			}
 
-			/* If the ISON records were not requested by the user, then
-			 treat the results as user tracking information. */
-			NSString *onlineNicknamesString = m.sequence;
+			NSMutableArray<NSString *> *onlineNicknames = [NSMutableArray array];
 
-			NSArray *onlineNicknames = [onlineNicknamesString componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-
-			/* Start going over the list of tracked nicknames */
-			NSDictionary *trackedUsers = self.trackedUsers.trackedUsers;
-
-			[trackedUsers enumerateKeysAndObjectsUsingBlock:^(NSString *trackedUser, NSNumber *trackingStatusInt, BOOL *stop) {
-				IRCAddressBookUserTrackingStatus trackingStatus =
-				IRCAddressBookUserTrackingStatusUnknown;
-
-				/* Was the user on during the last check? */
-				BOOL ison = trackingStatusInt.boolValue;
-
-				if (ison) {
-					/* If the user was on before, but is not in the list of ISON
-					 users in this reply, then they are considered gone. Log that. */
-					if ([onlineNicknames containsObjectIgnoringCase:trackedUser] == NO) {
-						if (self.invokingISONCommandForFirstTime == NO) {
-							trackingStatus = IRCAddressBookUserTrackingStatusSignedOff;
-						}
-					}
-				} else {
-					/* If they were not on but now are, then log that too. */
-					if ([onlineNicknames containsObjectIgnoringCase:trackedUser]) {
-						if (self.invokingISONCommandForFirstTime) {
-							trackingStatus = IRCAddressBookUserTrackingStatusAvailable;
-						} else {
-							trackingStatus = IRCAddressBookUserTrackingStatusSignedOn;
-						}
-					}
-				}
-
-				/* If something changed (non-nil localization string), then scan 
-				 the list of address book entries to report the result. */
-				if (trackingStatus != IRCAddressBookUserTrackingStatusUnknown) {
-					[self statusOfTrackedNickname:trackedUser changedTo:trackingStatus notify:YES];
-				}
-			}]; // for
-
-			if (self.invokingISONCommandForFirstTime) { // Reset internal property
-				self.invokingISONCommandForFirstTime = NO;
-			}
-
-			/* Update private messages */
-			for (IRCChannel *channel in self.channelList) {
-				if (channel.privateMessage == NO) {
-					continue;
-				}
-
-				if (channel.isActive) {
-					/* If the user is no longer on, deactivate the private message */
-					if ([onlineNicknames containsObjectIgnoringCase:channel.name] == NO) {
-						[channel deactivate];
-
-						[mainWindow() reloadTreeItem:channel];
-					}
-				} else {
-					/* Activate the private message if the user is back online */
-					if ([onlineNicknames containsObjectIgnoringCase:channel.name]) {
-						[channel activate];
-
-						[mainWindow() reloadTreeItem:channel];
-					}
+			for (NSString *nickname in [m.sequence componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]) {
+				if (nickname.length > 0) {
+					[onlineNicknames addObject:nickname];
 				}
 			}
+
+			IRCIsonRoundTransition *transition = [self.isonRoundCoordinator recordReplyNicknames:onlineNicknames
+																	 roundIdentifier:round.identifier
+																		  generation:round.generation];
+
+			if (transition.consumedReply == NO) {
+				break;
+			}
+
+			if (round.kind == IRCIsonRequestKindManual && printMessage) {
+				[self printReplyToHiddenCommandResponsesQuery:m];
+			}
+
+			if (transition.completedResult) {
+				[self.isonRoundTimeoutTimer stop];
+				self.isonRoundTimeoutTimer.context = nil;
+			}
+
+			[self processIsonTransition:transition];
 
 			break;
 		}
@@ -10194,7 +10257,19 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 		case RPL_MONONLINE:
 		case RPL_MONOFFLINE:
 		{
-			NSAssertReturn([m paramsCount] == 2);
+			if (self.monitorTrackingSuspended) {
+				if (printMessage) {
+					[self printReplyToHiddenCommandResponsesQuery:m];
+				}
+
+				break;
+			}
+
+			IRCMonitorReply *reply = [IRCMonitorReply replyWithMessage:m];
+
+			if (reply == nil) {
+				break;
+			}
 
 			/* Present reply to the user if we have destination */
 			if (printMessage) {
@@ -10202,11 +10277,7 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 			}
 
 			/* Process reply */
-			NSString *changedUsersString = [m paramAt:1];
-
-			NSArray *changedUsers = [changedUsersString componentsSeparatedByString:@","];
-
-			for (NSString *changedUser in changedUsers) {
+			for (NSString *changedUser in reply.targets) {
 				NSString *nickname = nil;
 
 				if ([changedUser hostmaskComponents:&nickname username:NULL address:NULL onClient:self] == NO) {
@@ -10219,7 +10290,7 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 					continue;
 				}
 
-				if (numeric == RPL_MONONLINE) { // logged online
+				if (reply.online) { // logged online
 					[self statusOfTrackedNickname:nickname changedTo:IRCAddressBookUserTrackingStatusSignedOn notify:YES];
 				} else {
 					[self statusOfTrackedNickname:nickname changedTo:IRCAddressBookUserTrackingStatusSignedOff notify:YES];
@@ -10230,6 +10301,8 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 		}
 		case ERR_MONLISTFULL:
 		{
+			[self quarantineMonitorTrackingWithReason:@"the server reported that its MONITOR list is full"];
+
 			/* See ERR_TOOMANYWATCH for reason we always print this. */
 			if (printMessage) {
 				[self printErrorReply:m];
@@ -10513,8 +10586,10 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 		{
 			NSString *command = [m paramAt:1];
 
-			if ([command isEqualToString:@"ISON"]) {
-				[self.requestedCommands recordIsonRequestClosed];
+			if ([command caseInsensitiveCompare:@"ISON"] == NSOrderedSame) {
+				[self quarantineIsonWithReason:@"the server returned an ISON error"];
+			} else if ([command caseInsensitiveCompare:@"MONITOR"] == NSOrderedSame) {
+				[self quarantineMonitorTrackingWithReason:@"the server returned a MONITOR error"];
 			} else if ([command isEqualToString:@"WHO"]) {
 				[self.requestedCommands recordWhoRequestClosed];
 			}
@@ -12133,44 +12208,148 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 
 - (void)sendIsonForNicknames:(NSArray<NSString *> *)nicknames
 {
-	[self sendIsonForNicknames:nicknames hideResponse:NO];
+	[self enqueueIsonNicknames:nicknames
+						 kind:IRCIsonRequestKindManual
+					  context:nil
+					  initial:NO];
 }
 
 - (void)sendIsonForNicknames:(NSArray<NSString *> *)nicknames hideResponse:(BOOL)hideResponse
 {
 	NSParameterAssert(nicknames != nil);
 
-	/* Split nicknames into fixed number per-command in case there are a lot or are long. */
-	/* June 11, 2018: Disabled this because Textual expects nicknames to appear in ISON
-	 response or they are considered offline. If we chunk out results, then user may
-	 disappear in one ISON response and then appear in another. The long term solution
-	 is to stop relying on ISON but no idea when that will come. */
-//	[nicknames enumerateSubarraysOfSize:8 usingBlock:^(NSArray *objects, BOOL *stop) {
-		[self _sendIsonForNicknames:nicknames hideResponse:hideResponse];
-//	}];
+	[self enqueueIsonNicknames:nicknames
+						 kind:(hideResponse ? IRCIsonRequestKindAutomaticTracking : IRCIsonRequestKindManual)
+					  context:nil
+					  initial:(hideResponse && self.invokingISONCommandForFirstTime)];
 }
 
-- (void)_sendIsonForNicknames:(NSArray<NSString *> *)nicknames hideResponse:(BOOL)hideResponse
+- (BOOL)enqueueIsonNicknames:(NSArray<NSString *> *)nicknames
+						 kind:(IRCIsonRequestKind)kind
+					  context:(nullable id<NSCopying>)context
+					  initial:(BOOL)initial
 {
 	NSParameterAssert(nicknames != nil);
 
 	if (self.isLoggedIn == NO) {
-		return;
+		return NO;
+	}
+
+	if (self.isonRequestsSuspended) {
+		if (kind == IRCIsonRequestKindManual) {
+			[self printDebugInformation:@"ISON is unavailable until this server reconnects."];
+		}
+
+		return NO;
 	}
 
 	if (nicknames.count == 0) {
+		if (kind == IRCIsonRequestKindManual) {
+			[self printDebugInformation:@"ISON requires at least one nickname."];
+		}
+
+		return NO;
+	}
+
+	IRCIsonBatchEncodingPolicy encodingPolicy = IRCIsonBatchEncodingPolicyMake(self.config.primaryEncoding, self.config.fallbackEncoding);
+	NSError *error = nil;
+	IRCIsonRoundTransition *transition = [self.isonRoundCoordinator enqueueNicknames:nicknames
+														 kind:kind
+													  context:context
+													  initial:initial
+											   encodingPolicy:encodingPolicy
+												 caseMapping:self.supportInfo.nicknameCaseMapping
+										 maximumBodyBytes:TXMaximumIRCBodyLength
+													error:&error];
+
+	if (transition == nil) {
+		LogToConsoleError("Unable to create ISON round: %{public}@", error.localizedDescription);
+
+		if (kind == IRCIsonRequestKindManual) {
+			[self printDebugInformation:[NSString stringWithFormat:@"Unable to send ISON: %@", error.localizedDescription]];
+		}
+
+		return NO;
+	}
+
+	if (kind == IRCIsonRequestKindAutomaticTracking && initial) {
+		self.isonInitialTrackingRoundReserved = YES;
+	}
+
+	[self processIsonTransition:transition];
+
+	return YES;
+}
+
+- (void)processIsonTransition:(IRCIsonRoundTransition *)transition
+{
+	NSParameterAssert(transition != nil);
+
+	if (transition.completedResult) {
+		[self applyIsonRoundResult:transition.completedResult];
+	}
+
+	if (transition.roundToStart) {
+		[self startIsonRound:transition.roundToStart];
+	}
+}
+
+- (void)startIsonRound:(IRCIsonRound *)round
+{
+	NSParameterAssert(round != nil);
+
+	if (self.isLoggedIn == NO || self.isonRequestsSuspended) {
 		return;
 	}
 
-	if (hideResponse == NO) {
-		[self.requestedCommands recordIsonRequestOpenedAsVisible];
-	} else {
-		[self.requestedCommands recordIsonRequestOpened];
+	for (IRCIsonBatch *batch in round.batches) {
+		if ([self sendIsonBatch:batch] == NO) {
+			[self quarantineIsonWithReason:@"an encoded batch was rejected locally"];
+			return;
+		}
 	}
 
-	NSString *nicknamesString = [nicknames componentsJoinedByString:@" "];
+	self.isonRoundTimeoutTimer.context = @{
+		@"identifier": round.identifier,
+		@"generation": @(round.generation),
+	};
 
-	[self send:@"ISON", nicknamesString, nil];
+	NSUInteger messagesPerWindow = MAX(self.config.floodControlMaximumMessages, 1U);
+	NSUInteger floodWindows = ((round.batches.count + messagesPerWindow - 1) / messagesPerWindow);
+	NSTimeInterval timeoutInterval = (_isonRoundTimeoutInterval + 40 + (floodWindows * self.config.floodControlDelayTimerInterval));
+
+	[self.isonRoundTimeoutTimer start:timeoutInterval];
+}
+
+- (void)quarantineIsonWithReason:(NSString *)reason
+{
+	NSParameterAssert(reason != nil);
+
+	[self.isonRoundTimeoutTimer stop];
+	self.isonRoundTimeoutTimer.context = nil;
+	self.isonRequestsSuspended = YES;
+
+	[self.isonTimer stop];
+	[self.isonRoundCoordinator reset];
+
+	LogToConsoleError("ISON quarantined until reconnect because %{public}@", reason);
+}
+
+- (void)quarantineMonitorTrackingWithReason:(NSString *)reason
+{
+	NSParameterAssert(reason != nil);
+
+	if (self.monitorTrackingSuspended) {
+		return;
+	}
+
+	self.monitorTrackingSuspended = YES;
+
+	LogToConsoleError("MONITOR quarantined until reconnect because %{public}@", reason);
+
+	/* The next automatic ISON round includes tracked users once MONITOR is
+	 disabled for this connection. */
+	[self onISONTimer];
 }
 
 - (void)requestChannelList
@@ -12201,10 +12380,47 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 {
 	NSParameterAssert(nicknames != nil);
 
-	/* Split nicknames into fixed number per-command in case there are a lot or are long. */
-	[nicknames enumerateSubarraysOfSize:8 usingBlock:^(NSArray *objects, BOOL *stop) {
-		[self _modifyWatchListBy:adding nicknames:objects];
-	}];
+	if (nicknames.count == 0) {
+		return;
+	}
+
+	if (self.supportsMonitorTracking) {
+		IRCMonitorBatchEncodingPolicy encodingPolicy = IRCMonitorBatchEncodingPolicyMake(self.config.primaryEncoding, self.config.fallbackEncoding);
+		NSError *error = nil;
+		NSArray<IRCMonitorBatch *> *batches = IRCMonitorBatchesForNicknames(nicknames,
+																												 adding,
+																												 encodingPolicy,
+																												 TXMaximumIRCBodyLength,
+																												 &error);
+
+		if (batches == nil) {
+			LogToConsoleError("Unable to create MONITOR batches: %{public}@", error.localizedDescription);
+
+			[self quarantineMonitorTrackingWithReason:@"a nickname could not be encoded or fit within the command limit"];
+
+			return;
+		}
+
+		for (IRCMonitorBatch *batch in batches) {
+			if ([self sendMonitorBatch:batch] == NO) {
+				[self quarantineMonitorTrackingWithReason:@"an encoded batch was rejected locally"];
+
+				return;
+			}
+		}
+
+		return;
+	}
+
+	if ([self isCapabilityEnabled:ClientIRCv3SupportedCapabilityMonitorCommand] == NO &&
+		[self isCapabilityEnabled:ClientIRCv3SupportedCapabilityWatchCommand])
+	{
+		/* WATCH is a legacy fallback for networks which do not advertise
+	 MONITOR. Keep its existing conservative grouping. */
+		[nicknames enumerateSubarraysOfSize:8 usingBlock:^(NSArray *objects, BOOL *stop) {
+			[self _modifyWatchListBy:adding nicknames:objects];
+		}];
+	}
 }
 
 - (void)_modifyWatchListBy:(BOOL)adding nicknames:(NSArray<NSString *> *)nicknames
@@ -12219,22 +12435,10 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 		return;
 	}
 
-	NSString *modifier = nil;
-
-	if ([self isCapabilityEnabled:ClientIRCv3SupportedCapabilityMonitorCommand])
+	if ([self isCapabilityEnabled:ClientIRCv3SupportedCapabilityWatchCommand])
 	{
-		if (adding) {
-			modifier = @"+";
-		} else {
-			modifier = @"-";
-		}
+		NSString *modifier = nil;
 
-		NSString *nicknamesString = [nicknames componentsJoinedByString:@","];
-
-		[self send:@"MONITOR", modifier, nicknamesString, nil];
-	}
-	else if ([self isCapabilityEnabled:ClientIRCv3SupportedCapabilityWatchCommand])
-	{
 		if (adding) {
 			modifier = @" +";
 		} else {
@@ -12875,12 +13079,13 @@ present_error:
 		return;
 	}
 
-	/* Additions & Removals for WATCH command. ISON does not access these. */
-	NSMutableArray<NSString *> *watchAdditions = [NSMutableArray array];
-	NSMutableArray<NSString *> *watchRemovals = [NSMutableArray array];
+	/* Additions & removals for push tracking. ISON also uses this complete
+	 list when MONITOR/WATCH is unavailable or quarantined. */
+	NSMutableArray<NSString *> *trackingAdditions = [NSMutableArray array];
+	NSMutableArray<NSString *> *trackingRemovals = [NSMutableArray array];
 
 	/* Compare configuration to the list of tracked nicknames.
-	 * Nicknames that are new are added to watchAdditions */
+	 * Nicknames that are new are added to trackingAdditions */
 	NSDictionary *trackedUsersOld = self.trackedUsers.trackedUsers;
 
 	NSMutableArray<NSString *> *trackedUsersNew = [NSMutableArray array];
@@ -12892,15 +13097,19 @@ present_error:
 
 		NSString *trackingNickname = g.trackingNickname;
 
-		IRCAddressBookUserTrackingStatus trackingStatus = [self.trackedUsers statusOfUser:trackingNickname];
-
-		if (trackingStatus != IRCAddressBookUserTrackingStatusUnknown) {
-			[trackedUsersNew addObject:trackingNickname];
-
+		if ([trackedUsersNew containsObjectIgnoringCase:trackingNickname]) {
 			continue;
 		}
 
-		[watchAdditions addObject:trackingNickname];
+		[trackedUsersNew addObject:trackingNickname];
+
+		IRCAddressBookUserTrackingStatus trackingStatus = [self.trackedUsers statusOfUser:trackingNickname];
+
+		if (trackingStatus != IRCAddressBookUserTrackingStatusUnknown) {
+			continue;
+		}
+
+		[trackingAdditions addObject:trackingNickname];
 
 		[self.trackedUsers _addTrackedUser:trackingNickname];
 	}
@@ -12912,15 +13121,24 @@ present_error:
 			continue;
 		}
 
-		[watchRemovals addObject:trackedUser];
+		[trackingRemovals addObject:trackedUser];
 
 		[self.trackedUsers _removeTrackedUser:trackedUser];
 	}
 
-	/* Set new entries */
-	[self modifyWatchListBy:YES nicknames:watchAdditions];
+	/* Remove old subscriptions before adding new ones so the server's total
+	 MONITOR allowance is released before it is consumed again. */
+	[self modifyWatchListBy:NO nicknames:trackingRemovals];
 
-	[self modifyWatchListBy:NO nicknames:watchRemovals];
+	NSUInteger maximumMonitorTargets = self.supportInfo.maximumMonitorTargets;
+	BOOL monitorListCanRepresentConfiguration = (maximumMonitorTargets == 0 || trackedUsersNew.count <= maximumMonitorTargets);
+
+	if (self.supportsMonitorTracking && monitorListCanRepresentConfiguration == NO) {
+		[self quarantineMonitorTrackingWithReason:@"the configured tracking list exceeds the server MONITOR limit"];
+	} else {
+		/* Set new entries. */
+		[self modifyWatchListBy:YES nicknames:trackingAdditions];
+	}
 
 	[self startISONTimer];
 }
@@ -12938,27 +13156,31 @@ present_error:
 
 - (void)stopISONTimer
 {
-	if (self.isonTimer.timerIsActive == NO) {
-		return;
+	if (self.isonTimer.timerIsActive) {
+		[self.isonTimer stop];
 	}
-
-	[self.isonTimer stop];
 
 	[self stopWhoTimer];
 }
 
 - (void)onISONTimer
 {
-	if (self.isLoggedIn == NO || self.isBrokenIRCd_aka_Twitch) {
+	if (self.isLoggedIn == NO || self.isBrokenIRCd_aka_Twitch || self.isonRequestsSuspended) {
 		return;
 	}
 
 	NSMutableArray<NSString *> *nicknames = [NSMutableArray array];
+	NSMutableArray<IRCIsonTrackedUserSnapshot *> *trackedUserSnapshots = [NSMutableArray array];
+	NSMutableArray<IRCIsonQuerySnapshot *> *querySnapshots = [NSMutableArray array];
 
 	// Request ISON status for tracked users
 	if (self.supportsAdvancedTracking == NO) {
-		for (NSString *trackedUser in self.trackedUsers.trackedUsers) {
+		NSDictionary<NSString *, NSNumber *> *trackedUsers = self.trackedUsers.trackedUsers;
+
+		for (NSString *trackedUser in trackedUsers) {
 			[nicknames addObject:trackedUser];
+			[trackedUserSnapshots addObject:[[IRCIsonTrackedUserSnapshot alloc] initWithNickname:trackedUser
+																			 online:trackedUsers[trackedUser].boolValue]];
 		}
 	}
 
@@ -12966,10 +13188,120 @@ present_error:
 	for (IRCChannel *channel in self.channelList) {
 		if (channel.privateMessage) {
 			[nicknames addObject:channel.name];
+			[querySnapshots addObject:[[IRCIsonQuerySnapshot alloc] initWithIdentifier:channel.uniqueIdentifier
+																	 nickname:channel.name
+																	   active:channel.isActive]];
 		}
 	}
 
-	[self sendIsonForNicknames:nicknames hideResponse:YES];
+	IRCIsonApplicationContext *context = [[IRCIsonApplicationContext alloc] initWithTrackedUsers:trackedUserSnapshots
+																					 queries:querySnapshots];
+
+	[self enqueueIsonNicknames:nicknames
+						 kind:IRCIsonRequestKindAutomaticTracking
+					  context:context
+					  initial:(self.invokingISONCommandForFirstTime && self.isonInitialTrackingRoundReserved == NO)];
+}
+
+- (void)onISONRoundTimeout
+{
+	NSDictionary *timerContext = self.isonRoundTimeoutTimer.context;
+	IRCIsonRound *round = self.isonRoundCoordinator.activeRound;
+
+	if (round == nil ||
+		[timerContext[@"identifier"] isEqual:round.identifier] == NO ||
+		[timerContext[@"generation"] unsignedIntegerValue] != round.generation)
+	{
+		return;
+	}
+
+	[self quarantineIsonWithReason:@"the active round timed out"];
+}
+
+- (void)applyIsonRoundResult:(IRCIsonRoundResult *)result
+{
+	NSParameterAssert(result != nil);
+
+	if (result.round.kind != IRCIsonRequestKindAutomaticTracking ||
+		[(id)result.round.context isKindOfClass:[IRCIsonApplicationContext class]] == NO)
+	{
+		return;
+	}
+
+	IRCIsonApplicationPlan *plan = IRCIsonApplicationPlanForResult(result, (IRCIsonApplicationContext *)result.round.context);
+	NSDictionary<NSString *, NSNumber *> *trackedUsers = self.trackedUsers.trackedUsers;
+
+	for (IRCIsonTrackedUserChange *change in plan.trackedUserChanges) {
+		NSString *currentNickname = nil;
+		NSString *changeKey = IRCNicknameCasefold(change.nickname, result.round.caseMapping);
+
+		for (NSString *trackedNickname in trackedUsers) {
+			if ([IRCNicknameCasefold(trackedNickname, result.round.caseMapping) isEqualToString:changeKey]) {
+				currentNickname = trackedNickname;
+				break;
+			}
+		}
+
+		if (currentNickname == nil) {
+			continue;
+		}
+
+		BOOL shouldBeOnline = (change.kind != IRCIsonTrackedUserChangeKindSignedOff);
+
+		if (trackedUsers[currentNickname].boolValue == shouldBeOnline) {
+			continue;
+		}
+
+		IRCAddressBookUserTrackingStatus status;
+
+		switch (change.kind) {
+			case IRCIsonTrackedUserChangeKindAvailable:
+				status = IRCAddressBookUserTrackingStatusAvailable;
+				break;
+			case IRCIsonTrackedUserChangeKindSignedOn:
+				status = IRCAddressBookUserTrackingStatusSignedOn;
+				break;
+			case IRCIsonTrackedUserChangeKindSignedOff:
+				status = IRCAddressBookUserTrackingStatusSignedOff;
+				break;
+		}
+
+		[self statusOfTrackedNickname:currentNickname changedTo:status notify:YES];
+	}
+
+	for (IRCIsonQueryChange *change in plan.queryChanges) {
+		IRCChannel *query = nil;
+
+		for (IRCChannel *channel in self.channelList) {
+			if (channel.privateMessage && [channel.uniqueIdentifier isEqualToString:change.identifier]) {
+				query = channel;
+				break;
+			}
+		}
+
+		if (query == nil) {
+			continue;
+		}
+
+		if ([IRCNicknameCasefold(query.name, result.round.caseMapping) isEqualToString:IRCNicknameCasefold(change.nickname, result.round.caseMapping)] == NO ||
+			query.isActive == change.shouldBeActive)
+		{
+			continue;
+		}
+
+		if (change.shouldBeActive) {
+			[query activate];
+		} else {
+			[query deactivate];
+		}
+
+		[mainWindow() reloadTreeItem:query];
+	}
+
+	if (result.round.isInitial) {
+		self.invokingISONCommandForFirstTime = NO;
+		self.isonInitialTrackingRoundReserved = NO;
+	}
 }
 
 - (void)startWhoTimer
