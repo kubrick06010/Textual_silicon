@@ -68,10 +68,11 @@ jobs:
           plutil -lint "Build Results/Release/Textual.app/Contents/Info.plist"
 
       - name: Package artifact
-        id: package
         env:
           TAG_NAME: ${{ github.ref_name }}
         run: |
+          set -euo pipefail
+
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             version="$TAG_NAME"
           else
@@ -82,8 +83,12 @@ jobs:
           mkdir -p artifacts
           ditto -c -k --sequesterRsrc --keepParent \
             "Build Results/Release/Textual.app" "artifacts/$archive"
-          shasum -a 256 "artifacts/$archive" > "artifacts/$archive.sha256"
-          echo "archive=$archive" >> "$GITHUB_OUTPUT"
+
+          (
+            cd artifacts
+            shasum -a 256 "$archive" > "$archive.sha256"
+            shasum -a 256 --check "$archive.sha256"
+          )
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -111,12 +116,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+
           archive=$(find artifacts -maxdepth 1 -name '*.zip' -print -quit)
           test -n "$archive"
-          gh release create "$GITHUB_REF_NAME" \
-            "$archive" \
-            "$archive.sha256" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "Textual Silicon $GITHUB_REF_NAME" \
-            --prerelease \
-            --notes "Automated Apple-silicon build. This artifact is unsigned and not notarized; macOS may block it until it is explicitly allowed by the user."
+
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" \
+              "$archive" \
+              "$archive.sha256" \
+              --repo "$GITHUB_REPOSITORY" \
+              --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              "$archive" \
+              "$archive.sha256" \
+              --repo "$GITHUB_REPOSITORY" \
+              --verify-tag \
+              --title "Textual Silicon $GITHUB_REF_NAME" \
+              --prerelease \
+              --generate-notes \
+              --notes "Automated Apple-silicon build. This artifact is unsigned and not notarized; macOS may block it until it is explicitly allowed by the user."
+          fi

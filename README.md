@@ -11,7 +11,20 @@ Textual can be customized with styles written in CSS, HTML, and JavaScript; plug
 
 GitHub Actions builds the app for Apple silicon on every pull request and push
 to `master`. Pushing a tag whose name starts with `v` (for example, `v7.2.7-1`)
-also creates a GitHub prerelease containing the app and its SHA-256 checksum.
+also creates a GitHub prerelease containing the app, generated release notes,
+and its SHA-256 checksum. Re-running the workflow safely replaces the assets
+of the same release instead of creating a duplicate.
+
+Maintainers publish a version from an up-to-date `master` with an annotated
+tag:
+
+```sh
+git tag -a v7.2.7-1 -m "Textual Silicon v7.2.7-1"
+git push origin v7.2.7-1
+```
+
+The tag push is the publication trigger. Do not reuse or move a published tag;
+create a new version tag for a replacement build.
 
 The automated artifact is currently unsigned and not notarized. It is published
 as a prerelease until the project uses its own Apple Developer identity, bundle
