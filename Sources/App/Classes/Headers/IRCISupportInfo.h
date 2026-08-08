@@ -36,6 +36,8 @@
  *
  *********************************************************************** */
 
+#import "IRCNicknameCaseMapping.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class IRCModeInfo;
@@ -62,6 +64,8 @@ typedef NS_ENUM(NSUInteger, IRCISupportInfoListType)
 @property (readonly) NSUInteger maximumNicknameLength;
 @property (readonly) NSUInteger maximumTopicLength; // 0 = no limit
 @property (readonly) NSUInteger maximumModeCount;
+@property (readonly) NSUInteger maximumMonitorTargets; // 0 = no limit
+@property (readonly) IRCNicknameCaseMapping nicknameCaseMapping;
 @property (readonly, copy) NSArray<NSString *> *channelNamePrefixes;
 @property (readonly, copy) NSArray<NSString *> *statusMessageModeSymbols;
 @property (readonly, copy) NSDictionary<NSString *, NSNumber *> *channelModes;

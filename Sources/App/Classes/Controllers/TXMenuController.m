@@ -2442,21 +2442,21 @@ NS_ASSUME_NONNULL_BEGIN
 	NSParameterAssert(sender != nil);
 
 	NSDictionary *_helpMenuLinks = @{
-	   @(MTMMHelpLicenseAgreement) 					: @"https://help.codeux.com/textual/End-User-License-Agreement.kb",
-	   @(MTMMHelpPrivacyPolicy) 					: @"https://help.codeux.com/textual/Privacy-Policy.kb",
-	   @(MTMMHelpFrequentlyAskedQuestions) 			: @"https://help.codeux.com/textual/Frequently-Asked-Questions.kb",
-	   @(MTMMHelpKBMenuKnowledgeBaseHome) 			: @"https://help.codeux.com/textual/home.kb",
-	   @(MTMMHelpKBMenuChatEncryption) 				: @"https://help.codeux.com/textual/Off-the-Record-Messaging.kb",
-	   @(MTMMHelpKBMenuCommandReference) 			: @"https://help.codeux.com/textual/Command-Reference.kb",
-	   @(MTMMHelpKBMenuFeatureRequests) 			: @"https://help.codeux.com/textual/Support.kb",
-	   @(MTMMHelpKBMenuKeyboardShortcuts) 			: @"https://help.codeux.com/textual/Keyboard-Shortcuts.kb",
-	   @(MTMMHelpKBMenuMemoryManagement) 			: @"https://help.codeux.com/textual/Memory-Management.kb",
-	   @(MTMMHelpKBMenuNetworkTimeouts)				: @"https://help.codeux.com/textual/Network-Timeouts.kb",
-	   @(MTMMHelpKBMenuTextFormatting) 				: @"https://help.codeux.com/textual/Text-Formatting.kb",
-	   @(MTMMHelpKBMenuStylingInformation) 			: @"https://help.codeux.com/textual/Styles.kb",
-	   @(MTMMHelpKBMenuConnectingWithCertificate) 	: @"https://help.codeux.com/textual/Using-CertFP.kb",
-	   @(MTMMHelpKBMenuConnectingToBouncer)			: @"https://help.codeux.com/textual/Connecting-to-ZNC-Bouncer.kb",
-	   @(MTMMHelpKBMenuDCCFileTransferInformation) 	: @"https://help.codeux.com/textual/DCC-File-Transfer-Information.kb"
+	   @(MTMMHelpLicenseAgreement) 					: @"https://github.com/kubrick06010/Textual_silicon/blob/master/LICENSE",
+	   @(MTMMHelpPrivacyPolicy) 					: @"https://kubrick06010.github.io/Textual_silicon/privacy/",
+	   @(MTMMHelpFrequentlyAskedQuestions) 			: @"https://kubrick06010.github.io/Textual_silicon/faq/",
+	   @(MTMMHelpKBMenuKnowledgeBaseHome) 			: @"https://kubrick06010.github.io/Textual_silicon/",
+	   @(MTMMHelpKBMenuChatEncryption) 				: @"https://kubrick06010.github.io/Textual_silicon/user-guide/#chat-encryption",
+	   @(MTMMHelpKBMenuCommandReference) 			: @"https://kubrick06010.github.io/Textual_silicon/user-guide/#command-reference",
+	   @(MTMMHelpKBMenuFeatureRequests) 			: @"https://github.com/kubrick06010/Textual_silicon/issues/new/choose",
+	   @(MTMMHelpKBMenuKeyboardShortcuts) 			: @"https://kubrick06010.github.io/Textual_silicon/user-guide/#keyboard-shortcuts",
+	   @(MTMMHelpKBMenuMemoryManagement) 			: @"https://kubrick06010.github.io/Textual_silicon/developer-guide/#diagnostics-and-memory",
+	   @(MTMMHelpKBMenuNetworkTimeouts)				: @"https://kubrick06010.github.io/Textual_silicon/user-guide/#network-timeouts",
+	   @(MTMMHelpKBMenuTextFormatting) 				: @"https://kubrick06010.github.io/Textual_silicon/user-guide/#text-formatting",
+	   @(MTMMHelpKBMenuStylingInformation) 			: @"https://kubrick06010.github.io/Textual_silicon/user-guide/#scripts-and-styles",
+	   @(MTMMHelpKBMenuConnectingWithCertificate) 	: @"https://kubrick06010.github.io/Textual_silicon/user-guide/#certificate-authentication",
+	   @(MTMMHelpKBMenuConnectingToBouncer)			: @"https://kubrick06010.github.io/Textual_silicon/user-guide/#bouncers",
+	   @(MTMMHelpKBMenuDCCFileTransferInformation) 	: @"https://kubrick06010.github.io/Textual_silicon/user-guide/#file-transfers"
 	};
 
 	NSString *link = _helpMenuLinks[@([sender tag])];
@@ -2471,7 +2471,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)contactSupport:(id)sender
 {
-	[TLOpenLink openWithString:@"https://contact.codeux.com/" inBackground:NO];
+	[TLOpenLink openWithString:@"https://github.com/kubrick06010/Textual_silicon/issues" inBackground:NO];
 }
 
 - (void)connectToTextualHelpChannel:(id)sender
@@ -2794,7 +2794,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)encryptionWhatIsThisInformation:(id)sender
 {
-	[TLOpenLink openWithString:@"https://help.codeux.com/textual/Off-the-Record-Messaging.kb" inBackground:NO];
+	[TLOpenLink openWithString:@"https://kubrick06010.github.io/Textual_silicon/user-guide/#chat-encryption" inBackground:NO];
 }
 
 #undef _encryptionNotEnabled

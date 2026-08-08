@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation TVCLogView
 
-NSString * const TVCLogViewCommonUserAgentString = @"Textual/1.0 (+https://help.codeux.com/textual/Inline-Media-Scanner-User-Agent.kb)";
+NSString * const TVCLogViewCommonUserAgentString = @"Textual Silicon/1.0 (+https://kubrick06010.github.io/Textual_silicon/)";
 
 - (instancetype)init
 {

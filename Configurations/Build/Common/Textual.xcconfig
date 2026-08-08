@@ -22,4 +22,4 @@ DWARF_DSYM_FOLDER_PATH = ${TEXTUAL_WORKSPACE_TEMP_DIR}/SharedSymbols
 // As with other feature flags, changing this value only
 // adds or excludes certain chunks of code. It doesn't
 // change the underlying build process.
-TEXTUAL_BUILT_AS_UNIVERSAL_BINARY = 1
+TEXTUAL_BUILT_AS_UNIVERSAL_BINARY = 0

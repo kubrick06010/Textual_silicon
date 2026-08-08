@@ -54,14 +54,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IRCClientRequestedCommands (Helpers)
 #pragma mark -
-#pragma mark ISON Command (Default: hidden)
-
-@property (readonly, getter=inVisibleIsonRequest) BOOL visibleIsonRequest;
-- (void)recordIsonRequestOpened;
-- (void)recordIsonRequestOpenedAsVisible;
-- (void)recordIsonRequestClosed;
-
-#pragma mark -
 #pragma mark MONITOR Command (Default: hidden)
 
 #if 0

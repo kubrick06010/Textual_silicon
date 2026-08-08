@@ -38,6 +38,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+FOUNDATION_EXPORT NSData * _Nullable IRCWireDataForEncodedLineBody(NSData *encodedBody);
+
 @class IRCClient, IRCConnectionConfig;
 
 @interface IRCConnection : NSObject
@@ -60,6 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)close;
 
 - (void)sendLine:(NSString *)line;
+- (BOOL)sendEncodedLine:(NSData *)encodedBody;
 
 - (void)clearSendQueue;
 @end

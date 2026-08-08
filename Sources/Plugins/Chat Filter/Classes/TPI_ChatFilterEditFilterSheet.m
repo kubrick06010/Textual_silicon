@@ -797,22 +797,22 @@ typedef NS_ENUM(NSUInteger, TPI_ChatFilterEditFilterSheetSelection)
 
 - (void)viewFilterMatchHelpText:(id)sender
 {
-	[TLOpenLink openWithString:@"https://help.codeux.com/textual/Introduction-to-the-Chat-Filter-Addon.kb#faq-entry-1" inBackground:NO];
+	[TLOpenLink openWithString:@"https://kubrick06010.github.io/Textual_silicon/user-guide/#chat-filter-matching" inBackground:NO];
 }
 
 - (void)viewFilterActionHelpText:(id)sender
 {
-	[TLOpenLink openWithString:@"https://help.codeux.com/textual/Introduction-to-the-Chat-Filter-Addon.kb#faq-entry-2" inBackground:NO];
+	[TLOpenLink openWithString:@"https://kubrick06010.github.io/Textual_silicon/user-guide/#chat-filter-actions" inBackground:NO];
 }
 
 - (void)viewFilterSenderMatchHelpText:(id)sender
 {
-	[TLOpenLink openWithString:@"https://help.codeux.com/textual/Introduction-to-the-Chat-Filter-Addon.kb#faq-entry-3" inBackground:NO];
+	[TLOpenLink openWithString:@"https://kubrick06010.github.io/Textual_silicon/user-guide/#chat-filter-senders" inBackground:NO];
 }
 
 - (void)viewFilterForwardToDestinationHelpText:(id)sender
 {
-	[TLOpenLink openWithString:@"https://help.codeux.com/textual/Introduction-to-the-Chat-Filter-Addon.kb#faq-entry-4" inBackground:NO];
+	[TLOpenLink openWithString:@"https://kubrick06010.github.io/Textual_silicon/user-guide/#chat-filter-forwarding" inBackground:NO];
 }
 
 - (void)filterLimitedToMatrixChanged:(id)sender

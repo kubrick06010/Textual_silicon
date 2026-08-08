@@ -1,0 +1,122 @@
+name: Build and release
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build for Apple silicon
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository and submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Show build environment
+        run: |
+          xcodebuild -version
+          swift --version
+          uname -m
+
+      - name: Build unsigned app
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "Sources/App/Textual App.xcodeproj" \
+            -scheme "Textual (Standard Release)" \
+            -configuration Release \
+            -derivedDataPath "$RUNNER_TEMP/TextualDerivedData" \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            CLANG_MODULE_CACHE_PATH="$RUNNER_TEMP/ModuleCache" \
+            SWIFT_MODULE_CACHE_PATH="$RUNNER_TEMP/ModuleCache" \
+            EXCLUDED_SOURCE_FILE_NAMES="applicationIcon.iconset" \
+            TEXTUAL_BUNDLE_IDENTIFIER="com.kubrick06010.textual-silicon" \
+            TEXTUAL_GROUP_CONTAINER_IDENTIFIER="com.kubrick06010.textual-silicon" \
+            TEXTUAL_BUILT_WITH_LICENSE_MANAGER=0 \
+            TEXTUAL_BUILT_WITH_SPARKLE_ENABLED=0 \
+            build | tee "$RUNNER_TEMP/xcodebuild.log"
+
+          cp "Sources/App/Resources/Images/Application/applicationIcon.icns" \
+            "Build Results/Release/Textual.app/Contents/Resources/applicationIcon.icns"
+
+      - name: Validate app bundle
+        run: |
+          test -d "Build Results/Release/Textual.app"
+          test -x "Build Results/Release/Textual.app/Contents/MacOS/Textual"
+          lipo -archs "Build Results/Release/Textual.app/Contents/MacOS/Textual" | grep -qw arm64
+          plutil -lint "Build Results/Release/Textual.app/Contents/Info.plist"
+
+      - name: Package artifact
+        id: package
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version="$TAG_NAME"
+          else
+            version="${GITHUB_SHA:0:7}"
+          fi
+
+          archive="Textual-Silicon-${version}-arm64-unsigned.zip"
+          mkdir -p artifacts
+          ditto -c -k --sequesterRsrc --keepParent \
+            "Build Results/Release/Textual.app" "artifacts/$archive"
+          shasum -a 256 "artifacts/$archive" > "artifacts/$archive.sha256"
+          echo "archive=$archive" >> "$GITHUB_OUTPUT"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Textual-Silicon-arm64-unsigned
+          path: artifacts/
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub prerelease
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download packaged app
+        uses: actions/download-artifact@v4
+        with:
+          name: Textual-Silicon-arm64-unsigned
+          path: artifacts
+
+      - name: Publish GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          archive=$(find artifacts -maxdepth 1 -name '*.zip' -print -quit)
+          test -n "$archive"
+          gh release create "$GITHUB_REF_NAME" \
+            "$archive" \
+            "$archive.sha256" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Textual Silicon $GITHUB_REF_NAME" \
+            --prerelease \
+            --notes "Automated Apple-silicon build. This artifact is unsigned and not notarized; macOS may block it until it is explicitly allowed by the user."

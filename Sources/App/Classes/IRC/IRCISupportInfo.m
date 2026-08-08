@@ -58,6 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readwrite) NSUInteger maximumNicknameLength;
 @property (nonatomic, assign, readwrite) NSUInteger maximumTopicLength;
 @property (nonatomic, assign, readwrite) NSUInteger maximumModeCount;
+@property (nonatomic, assign, readwrite) NSUInteger maximumMonitorTargets;
+@property (nonatomic, assign, readwrite) IRCNicknameCaseMapping nicknameCaseMapping;
 @property (nonatomic, copy, readwrite) NSArray<NSString *> *channelNamePrefixes;
 @property (nonatomic, copy, readwrite) NSArray<NSString *> *statusMessageModeSymbols;
 @property (nonatomic, copy, readwrite) NSDictionary<NSString *, NSNumber *> *channelModes;
@@ -110,6 +112,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 	self.maximumModeCount = TXMaximumNodesPerModeCommand;
 	self.maximumNicknameLength = IRCProtocolDefaultNicknameMaximumLength;
+	self.maximumMonitorTargets = 0;
+	self.nicknameCaseMapping = IRCNicknameCaseMappingRFC1459;
 
 	self.userModeSymbols = @{
 		@"modeSymbols" : @[@"o", @"v"],
@@ -172,6 +176,12 @@ NS_ASSUME_NONNULL_BEGIN
 				if (awayLength > 0) {
 					self.maximumAwayLength = awayLength;
 				}
+			} else if ([segmentKey isEqualToStringIgnoringCase:@"CASEMAPPING"]) {
+				IRCNicknameCaseMapping caseMapping;
+
+				if (IRCNicknameCaseMappingParse(segmentValue, &caseMapping)) {
+					self.nicknameCaseMapping = caseMapping;
+				}
 			} else if ([segmentKey isEqualToStringIgnoringCase:@"CHANMODES"]) {
 				[self parseChannelModes:segmentValue];
 			} else if ([segmentKey isEqualToStringIgnoringCase:@"CHANNELLEN"]) {
@@ -204,6 +214,12 @@ NS_ASSUME_NONNULL_BEGIN
 				if (maximumModesCount > 0) {
 					self.maximumModeCount = maximumModesCount;
 				}
+			} else if ([segmentKey isEqualToStringIgnoringCase:@"MONITOR"]) {
+				NSInteger maximumMonitorTargets = segmentValue.integerValue;
+
+				if (maximumMonitorTargets > 0) {
+					self.maximumMonitorTargets = maximumMonitorTargets;
+				}
 			} else if ([segmentKey isEqualToStringIgnoringCase:@"NETWORK"]) {
 				self.networkName = segmentValue;
 				self.networkNameFormatted = TXTLS(@"IRC[8hg-7k]", segmentValue);
@@ -226,7 +242,9 @@ NS_ASSUME_NONNULL_BEGIN
 			}
 		}
 
-		if ([segmentKey isEqualToStringIgnoringCase:@"EXCEPTS"]) {
+		if ([segmentKey isEqualToStringIgnoringCase:@"-CASEMAPPING"]) {
+			self.nicknameCaseMapping = IRCNicknameCaseMappingRFC1459;
+		} else if ([segmentKey isEqualToStringIgnoringCase:@"EXCEPTS"]) {
 			if (segmentValue.isModeSymbol) {
 				self.banExceptionModeSymbol = segmentValue;
 			} else {

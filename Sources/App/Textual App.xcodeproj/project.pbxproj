@@ -21,6 +21,28 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		A60000000000000000000001 /* IRCConnectionEncodingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A60000000000000000000004 /* IRCConnectionEncodingTests.m */; };
+		A70000000000000000000001 /* IRCIsonTransportMockTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A70000000000000000000004 /* IRCIsonTransportMockTests.m */; };
+		A80000000000000000000001 /* IRCMonitorBatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = A80000000000000000000004 /* IRCMonitorBatcher.m */; };
+		A80000000000000000000002 /* IRCMonitorBatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = A80000000000000000000004 /* IRCMonitorBatcher.m */; };
+		A80000000000000000000003 /* IRCMonitorBatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A80000000000000000000006 /* IRCMonitorBatcherTests.m */; };
+		A90000000000000000000001 /* IRCMonitorReply.m in Sources */ = {isa = PBXBuildFile; fileRef = A90000000000000000000004 /* IRCMonitorReply.m */; };
+		A90000000000000000000002 /* IRCMonitorReply.m in Sources */ = {isa = PBXBuildFile; fileRef = A90000000000000000000004 /* IRCMonitorReply.m */; };
+		A90000000000000000000003 /* IRCMonitorReplyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A90000000000000000000006 /* IRCMonitorReplyTests.m */; };
+		A50000000000000000000001 /* IRCIsonResultApplicator.m in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000004 /* IRCIsonResultApplicator.m */; };
+		A50000000000000000000002 /* IRCIsonResultApplicator.m in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000004 /* IRCIsonResultApplicator.m */; };
+		A50000000000000000000003 /* IRCIsonResultApplicatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000006 /* IRCIsonResultApplicatorTests.m */; };
+		A40000000000000000000001 /* IRCIsonRoundCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000004 /* IRCIsonRoundCoordinator.m */; };
+		A40000000000000000000002 /* IRCIsonRoundCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000004 /* IRCIsonRoundCoordinator.m */; };
+		A40000000000000000000003 /* IRCIsonRoundCoordinatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000006 /* IRCIsonRoundCoordinatorTests.m */; };
+		A30000000000000000000001 /* IRCNicknameCaseMapping.m in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000004 /* IRCNicknameCaseMapping.m */; };
+		A30000000000000000000002 /* IRCNicknameCaseMapping.m in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000004 /* IRCNicknameCaseMapping.m */; };
+		A30000000000000000000003 /* IRCNicknameCaseMappingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000006 /* IRCNicknameCaseMappingTests.m */; };
+		A20000000000000000000001 /* IRCIsonBatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* IRCIsonBatcher.m */; };
+		A20000000000000000000002 /* IRCIsonBatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* IRCIsonBatcher.m */; };
+		A20000000000000000000003 /* IRCIsonBatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000006 /* IRCIsonBatcherTests.m */; };
+		A10000000000000000000001 /* IRCMessageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* IRCMessageTests.m */; };
+		A10000000000000000000002 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10000000000000000000005 /* XCTest.framework */; };
 		4C06DF2A20EC49A60055D09A /* IRCCommandIndexLocalData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4C3153A020EB676400448776 /* IRCCommandIndexLocalData.plist */; };
 		4C06DF2B20EC49A60055D09A /* IRCCommandIndexRemoteData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4C31539F20EB676400448776 /* IRCCommandIndexRemoteData.plist */; };
 		4C06DF2C20EC49A60055D09A /* IRCNetworks.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4C3153A220EB676400448776 /* IRCNetworks.plist */; };
@@ -67,9 +89,9 @@
 		4C06E03E20EC4A100055D09A /* DIGreenBadgeLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535F20EB676400448776 /* DIGreenBadgeLeft.png */; };
 		4C06E03F20EC4A100055D09A /* DIGreenBadgeRight.png in Resources */ = {isa = PBXBuildFile; fileRef = 4C31536020EB676400448776 /* DIGreenBadgeRight.png */; };
 		4C06E04020EC4A100055D09A /* DIGreenBadgeCenter.png in Resources */ = {isa = PBXBuildFile; fileRef = 4C31536120EB676400448776 /* DIGreenBadgeCenter.png */; };
-		4C06E04C20EC4A2E0055D09A /* applicationIcon.iconset in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535920EB676400448776 /* applicationIcon.iconset */; };
+		4C06E04C20EC4A2E0055D09A /* applicationIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535820EB676400448776 /* applicationIcon.icns */; };
 		4C06E04D20EC4A2E0055D09A /* applicationIconBirthday.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535A20EB676400448776 /* applicationIconBirthday.icns */; };
-		4C06E04E20EC4A2F0055D09A /* applicationIcon.iconset in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535920EB676400448776 /* applicationIcon.iconset */; };
+		4C06E04E20EC4A2F0055D09A /* applicationIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535820EB676400448776 /* applicationIcon.icns */; };
 		4C06E04F20EC4A2F0055D09A /* applicationIconBirthday.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535A20EB676400448776 /* applicationIconBirthday.icns */; };
 		4C06E05320EC4A3D0055D09A /* Copyright Information for Images.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535620EB676400448776 /* Copyright Information for Images.txt */; };
 		4C06E05420EC4A3E0055D09A /* Copyright Information for Images.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535620EB676400448776 /* Copyright Information for Images.txt */; };
@@ -1246,6 +1268,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		A1000000000000000000000B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4C1DC5491580420500A47BC9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4C5BA37216F1302F00A96CA2;
+			remoteInfo = "Textual (Debug)";
+		};
 		4CBB842C16F0DA1D004E3ED6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4C1DC5491580420500A47BC9 /* Project object */;
@@ -1401,6 +1430,29 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A60000000000000000000004 /* IRCConnectionEncodingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCConnectionEncodingTests.m; sourceTree = "<group>"; };
+		A70000000000000000000004 /* IRCIsonTransportMockTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCIsonTransportMockTests.m; sourceTree = "<group>"; };
+		A80000000000000000000004 /* IRCMonitorBatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCMonitorBatcher.m; sourceTree = "<group>"; };
+		A80000000000000000000005 /* IRCMonitorBatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IRCMonitorBatcher.h; sourceTree = "<group>"; };
+		A80000000000000000000006 /* IRCMonitorBatcherTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCMonitorBatcherTests.m; sourceTree = "<group>"; };
+		A90000000000000000000004 /* IRCMonitorReply.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCMonitorReply.m; sourceTree = "<group>"; };
+		A90000000000000000000005 /* IRCMonitorReply.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IRCMonitorReply.h; sourceTree = "<group>"; };
+		A90000000000000000000006 /* IRCMonitorReplyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCMonitorReplyTests.m; sourceTree = "<group>"; };
+		A50000000000000000000004 /* IRCIsonResultApplicator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCIsonResultApplicator.m; sourceTree = "<group>"; };
+		A50000000000000000000005 /* IRCIsonResultApplicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IRCIsonResultApplicator.h; sourceTree = "<group>"; };
+		A50000000000000000000006 /* IRCIsonResultApplicatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCIsonResultApplicatorTests.m; sourceTree = "<group>"; };
+		A40000000000000000000004 /* IRCIsonRoundCoordinator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCIsonRoundCoordinator.m; sourceTree = "<group>"; };
+		A40000000000000000000005 /* IRCIsonRoundCoordinator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IRCIsonRoundCoordinator.h; sourceTree = "<group>"; };
+		A40000000000000000000006 /* IRCIsonRoundCoordinatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCIsonRoundCoordinatorTests.m; sourceTree = "<group>"; };
+		A30000000000000000000004 /* IRCNicknameCaseMapping.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCNicknameCaseMapping.m; sourceTree = "<group>"; };
+		A30000000000000000000005 /* IRCNicknameCaseMapping.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IRCNicknameCaseMapping.h; sourceTree = "<group>"; };
+		A30000000000000000000006 /* IRCNicknameCaseMappingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCNicknameCaseMappingTests.m; sourceTree = "<group>"; };
+		A20000000000000000000004 /* IRCIsonBatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCIsonBatcher.m; sourceTree = "<group>"; };
+		A20000000000000000000005 /* IRCIsonBatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IRCIsonBatcher.h; sourceTree = "<group>"; };
+		A20000000000000000000006 /* IRCIsonBatcherTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCIsonBatcherTests.m; sourceTree = "<group>"; };
+		A10000000000000000000003 /* IRCMessageTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCMessageTests.m; sourceTree = "<group>"; };
+		A10000000000000000000004 /* TextualCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TextualCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000005 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 		4C06E13A20EC4AC40055D09A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/TDCServerPropertiesSheet.xib; sourceTree = "<group>"; };
 		4C06E13E20EC4AC40055D09A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/TDCServerHighlightListSheet.xib; sourceTree = "<group>"; };
 		4C06E14020EC4AC40055D09A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/TDCServerEndpointListSheet.xib; sourceTree = "<group>"; };
@@ -2053,6 +2105,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A10000000000000000000007 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000002 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4C1DC54F1580420500A47BC9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -2305,6 +2365,7 @@
 		4C1DC5471580420500A47BC9 = {
 			isa = PBXGroup;
 			children = (
+				A10000000000000000000006 /* Tests */,
 				4C31511220EB673E00448776 /* Classes */,
 				4C3152EC20EB676400448776 /* Resources */,
 				4C1DC5551580420500A47BC9 /* Frameworks */,
@@ -2315,6 +2376,7 @@
 		4C1DC5531580420500A47BC9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				A10000000000000000000004 /* TextualCoreTests.xctest */,
 				4C1DC5521580420500A47BC9 /* Textual.app */,
 				4C5BA4E616F1302F00A96CA2 /* Textual.app */,
 			);
@@ -2324,6 +2386,7 @@
 		4C1DC5551580420500A47BC9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A10000000000000000000005 /* XCTest.framework */,
 				4C46CCCC158046BE00846B64 /* External Frameworks */,
 				4C211D3F15BF1F5E00E218DA /* External Libraries */,
 				4C46CCB91580469200846B64 /* System Frameworks */,
@@ -2386,6 +2449,12 @@
 		4C31512220EB673E00448776 /* IRC */ = {
 			isa = PBXGroup;
 			children = (
+				A90000000000000000000004 /* IRCMonitorReply.m */,
+				A80000000000000000000004 /* IRCMonitorBatcher.m */,
+				A50000000000000000000004 /* IRCIsonResultApplicator.m */,
+				A40000000000000000000004 /* IRCIsonRoundCoordinator.m */,
+				A30000000000000000000004 /* IRCNicknameCaseMapping.m */,
+				A20000000000000000000004 /* IRCIsonBatcher.m */,
 				4C31512320EB673E00448776 /* IRCAddressBook.m */,
 				4C31512B20EB673E00448776 /* IRCAddressBookMatchCache.m */,
 				4C31513E20EB673E00448776 /* IRCAddressBookUserTracking.m */,
@@ -2511,6 +2580,12 @@
 		4C31516020EB673E00448776 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				A90000000000000000000005 /* IRCMonitorReply.h */,
+				A80000000000000000000005 /* IRCMonitorBatcher.h */,
+				A50000000000000000000005 /* IRCIsonResultApplicator.h */,
+				A40000000000000000000005 /* IRCIsonRoundCoordinator.h */,
+				A30000000000000000000005 /* IRCNicknameCaseMapping.h */,
+				A20000000000000000000005 /* IRCIsonBatcher.h */,
 				4C31516120EB673E00448776 /* External Libraries */,
 				4C31518420EB673E00448776 /* Internal */,
 				4C3151AB20EB673E00448776 /* Private */,
@@ -3535,6 +3610,22 @@
 			name = "Build Scripts";
 			sourceTree = SOURCE_ROOT;
 		};
+		A10000000000000000000006 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				A60000000000000000000004 /* IRCConnectionEncodingTests.m */,
+				A70000000000000000000004 /* IRCIsonTransportMockTests.m */,
+				A90000000000000000000006 /* IRCMonitorReplyTests.m */,
+				A80000000000000000000006 /* IRCMonitorBatcherTests.m */,
+				A50000000000000000000006 /* IRCIsonResultApplicatorTests.m */,
+				A40000000000000000000006 /* IRCIsonRoundCoordinatorTests.m */,
+				A30000000000000000000006 /* IRCNicknameCaseMappingTests.m */,
+				A20000000000000000000006 /* IRCIsonBatcherTests.m */,
+				A10000000000000000000003 /* IRCMessageTests.m */,
+			);
+			path = Tests/TextualCoreTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -4077,6 +4168,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		A1000000000000000000000A /* TextualCoreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000010 /* Build configuration list for PBXNativeTarget "TextualCoreTests" */;
+			buildPhases = (
+				A10000000000000000000009 /* Sources */,
+				A10000000000000000000007 /* Frameworks */,
+				A10000000000000000000008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A1000000000000000000000C /* PBXTargetDependency */,
+			);
+			name = TextualCoreTests;
+			productName = TextualCoreTests;
+			productReference = A10000000000000000000004 /* TextualCoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		4C1DC5511580420500A47BC9 /* Textual (Standard Release) */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4C1DC5701580420500A47BC9 /* Build configuration list for PBXNativeTarget "Textual (Standard Release)" */;
@@ -4141,6 +4250,10 @@
 				LastUpgradeCheck = 1600;
 				ORGANIZATIONNAME = "Codeux Software, LLC";
 				TargetAttributes = {
+					A1000000000000000000000A = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 4C5BA37216F1302F00A96CA2;
+					};
 					4C1DC5511580420500A47BC9 = {
 						DevelopmentTeam = 8482Q6EPL6;
 						DevelopmentTeamName = "Codeux Software, LLC";
@@ -4181,6 +4294,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				A1000000000000000000000A /* TextualCoreTests */,
 				4C5BA37216F1302F00A96CA2 /* Textual (Debug) */,
 				4C1DC5511580420500A47BC9 /* Textual (Standard Release) */,
 				4CCF301015804DCE006FFE21 /* Build Frameworks */,
@@ -4189,6 +4303,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		A10000000000000000000008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4C1DC5501580420500A47BC9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -4212,7 +4333,7 @@
 				4C06E02020EC4A060055D09A /* DIRedBadgeRight.png in Resources */,
 				4C06E1C420EC4AC40055D09A /* TVCChannelSelectionView.xib in Resources */,
 				4C06E03920EC4A0F0055D09A /* DIGreenBadgeRight.png in Resources */,
-				4C06E04E20EC4A2F0055D09A /* applicationIcon.iconset in Resources */,
+				4C06E04E20EC4A2F0055D09A /* applicationIcon.icns in Resources */,
 				4C06E1FC20EC4AC50055D09A /* TDCAboutDialog.xib in Resources */,
 				4C06E05320EC4A3D0055D09A /* Copyright Information for Images.txt in Resources */,
 				4C06E07A20EC4A540055D09A /* FormattingColor_11.png in Resources */,
@@ -4357,7 +4478,7 @@
 				4C06E02620EC4A060055D09A /* DIRedBadgeRight.png in Resources */,
 				4C06E1C320EC4AC40055D09A /* TVCChannelSelectionView.xib in Resources */,
 				4C06E03F20EC4A100055D09A /* DIGreenBadgeRight.png in Resources */,
-				4C06E04C20EC4A2E0055D09A /* applicationIcon.iconset in Resources */,
+				4C06E04C20EC4A2E0055D09A /* applicationIcon.icns in Resources */,
 				4C06E1FB20EC4AC50055D09A /* TDCAboutDialog.xib in Resources */,
 				4C06E05420EC4A3E0055D09A /* Copyright Information for Images.txt in Resources */,
 				4C06E08C20EC4A540055D09A /* FormattingColor_11.png in Resources */,
@@ -4624,10 +4745,32 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		A10000000000000000000009 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A60000000000000000000001 /* IRCConnectionEncodingTests.m in Sources */,
+				A70000000000000000000001 /* IRCIsonTransportMockTests.m in Sources */,
+				A90000000000000000000003 /* IRCMonitorReplyTests.m in Sources */,
+				A80000000000000000000003 /* IRCMonitorBatcherTests.m in Sources */,
+				A50000000000000000000003 /* IRCIsonResultApplicatorTests.m in Sources */,
+				A40000000000000000000003 /* IRCIsonRoundCoordinatorTests.m in Sources */,
+				A30000000000000000000003 /* IRCNicknameCaseMappingTests.m in Sources */,
+				A20000000000000000000003 /* IRCIsonBatcherTests.m in Sources */,
+				A10000000000000000000001 /* IRCMessageTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4C0444F316F1602900EBB665 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A90000000000000000000001 /* IRCMonitorReply.m in Sources */,
+				A80000000000000000000001 /* IRCMonitorBatcher.m in Sources */,
+				A50000000000000000000001 /* IRCIsonResultApplicator.m in Sources */,
+				A40000000000000000000001 /* IRCIsonRoundCoordinator.m in Sources */,
+				A30000000000000000000001 /* IRCNicknameCaseMapping.m in Sources */,
+				A20000000000000000000001 /* IRCIsonBatcher.m in Sources */,
 				4C06E57F20EC553A0055D09A /* TXAppearance.m in Sources */,
 				4C06E58020EC553A0055D09A /* TXApplication.m in Sources */,
 				4C06E58120EC553A0055D09A /* TXGlobalModels.m in Sources */,
@@ -4812,6 +4955,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A90000000000000000000002 /* IRCMonitorReply.m in Sources */,
+				A80000000000000000000002 /* IRCMonitorBatcher.m in Sources */,
+				A50000000000000000000002 /* IRCIsonResultApplicator.m in Sources */,
+				A40000000000000000000002 /* IRCIsonRoundCoordinator.m in Sources */,
+				A30000000000000000000002 /* IRCNicknameCaseMapping.m in Sources */,
+				A20000000000000000000002 /* IRCIsonBatcher.m in Sources */,
 				4C06E63820EC55B90055D09A /* TXAppearance.m in Sources */,
 				4C06E63920EC55B90055D09A /* TXApplication.m in Sources */,
 				4C06E63A20EC55B90055D09A /* TXGlobalModels.m in Sources */,
@@ -4995,6 +5144,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		A1000000000000000000000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4C5BA37216F1302F00A96CA2 /* Textual (Debug) */;
+			targetProxy = A1000000000000000000000B /* PBXContainerItemProxy */;
+		};
 		4CBB842D16F0DA1D004E3ED6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4CCF301015804DCE006FFE21 /* Build Frameworks */;
@@ -5454,6 +5608,40 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		A1000000000000000000000D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../../Build Results/$(CONFIGURATION)";
+				FRAMEWORK_SEARCH_PATHS = ("$(inherited)", "$(PROJECT_DIR)/../../.tmp/SharedBuildProducts-Frameworks/**", "$(PROJECT_DIR)/../../Frameworks/**");
+				GCC_PREFIX_HEADER = "$(PROJECT_DIR)/Classes/Headers/Private/TextualPrivate.h";
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = ("$(inherited)", "$(PROJECT_DIR)/Classes/Headers/**", "$(PROJECT_DIR)/../../.tmp/Build Headers/", "$(PROJECT_DIR)/../Shared/Headers/**");
+				INFOPLIST_FILE = "";
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.textualsilicon.TextualCoreTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Textual.app/Contents/MacOS/Textual";
+				TEST_TARGET_NAME = "Textual (Debug)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		A1000000000000000000000E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = { ARCHS = arm64; BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGNING_ALLOWED = NO; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = ""; MACOSX_DEPLOYMENT_TARGET = 12.0; PRODUCT_BUNDLE_IDENTIFIER = org.textualsilicon.TextualCoreTests; PRODUCT_NAME = "$(TARGET_NAME)"; SKIP_INSTALL = YES; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Textual.app/Contents/MacOS/Textual"; WRAPPER_EXTENSION = xctest; };
+			name = Release;
+		};
+		A1000000000000000000000F /* Release (Sandboxed) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = { ARCHS = arm64; BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGNING_ALLOWED = NO; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = ""; MACOSX_DEPLOYMENT_TARGET = 12.0; PRODUCT_BUNDLE_IDENTIFIER = org.textualsilicon.TextualCoreTests; PRODUCT_NAME = "$(TARGET_NAME)"; SKIP_INSTALL = YES; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Textual.app/Contents/MacOS/Textual"; WRAPPER_EXTENSION = xctest; };
+			name = "Release (Sandboxed)";
+		};
 		4C13442320C75C4900343AB7 /* Release (Sandboxed) */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -5534,6 +5722,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A10000000000000000000010 /* Build configuration list for PBXNativeTarget "TextualCoreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1000000000000000000000D /* Debug */,
+				A1000000000000000000000E /* Release */,
+				A1000000000000000000000F /* Release (Sandboxed) */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		4C1DC54C1580420500A47BC9 /* Build configuration list for PBXProject "Textual App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
