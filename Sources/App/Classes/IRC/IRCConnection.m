@@ -45,11 +45,36 @@
 #import "TLOLocalization.h"
 #import "TPCPreferencesLocal.h"
 #import "IRCClient.h"
+#import "IRC.h"
 #import "IRCConnectionConfig.h"
 #import "IRCConnectionErrors.h"
 #import "IRCConnectionPrivate.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+NSData * _Nullable IRCWireDataForEncodedLineBody(NSData *encodedBody)
+{
+	NSCParameterAssert(encodedBody != nil);
+
+	if (encodedBody.length > TXMaximumIRCBodyLength) {
+		return nil;
+	}
+
+	const uint8_t *encodedBytes = encodedBody.bytes;
+
+	for (NSUInteger index = 0; index < encodedBody.length; index++) {
+		if (encodedBytes[index] == '\r' || encodedBytes[index] == '\n') {
+			return nil;
+		}
+	}
+
+	NSMutableData *wireData = [encodedBody mutableCopy];
+	const uint8_t lineDelimiter[] = {'\r', '\n'};
+
+	[wireData appendBytes:lineDelimiter length:sizeof(lineDelimiter)];
+
+	return [wireData copy];
+}
 
 @interface IRCConnection ()
 @property (nonatomic, weak, readwrite) IRCClient *client;
@@ -432,6 +457,23 @@ NS_ASSUME_NONNULL_BEGIN
 	}
 
 	[[self remoteObjectProxy] sendData:dataToSend];
+}
+
+- (BOOL)sendEncodedLine:(NSData *)encodedBody
+{
+	NSParameterAssert(encodedBody != nil);
+
+	NSData *dataToSend = IRCWireDataForEncodedLineBody(encodedBody);
+
+	if (dataToSend == nil) {
+		return NO;
+	}
+
+	self.isSending = YES;
+
+	[[self remoteObjectProxy] sendData:dataToSend];
+
+	return YES;
 }
 
 - (void)clearSendQueue
