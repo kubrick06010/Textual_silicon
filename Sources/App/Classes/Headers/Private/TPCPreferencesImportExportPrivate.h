@@ -43,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)import:(id)object withKey:(NSString *)key;
 
 + (void)importContentsOfDictionary:(NSDictionary<NSString *, id> *)aDict;
++ (nullable NSArray<NSDictionary<NSString *, id> *> *)clientConfigurationsFromImportObject:(id)object;
 + (void)importClientConfiguration:(NSDictionary<NSString *, id> *)config;
 @end
 

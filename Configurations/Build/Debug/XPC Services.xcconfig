@@ -2,3 +2,8 @@
 #include "../Common/Foundation Debug.xcconfig"
 #include "Textual.xcconfig"
 #include "../Common/XPC Services.xcconfig"
+
+// Local Debug builds are ad hoc signed. Keep the XPC compatible with the
+// ad hoc-signed frameworks embedded in the application; Release retains the
+// Hardened Runtime required for distribution.
+ENABLE_HARDENED_RUNTIME = NO

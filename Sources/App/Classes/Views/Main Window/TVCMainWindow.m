@@ -90,6 +90,41 @@ NSString * const TVCMainWindowDidReloadThemeNotification = @"TVCMainWindowDidRel
 
 NSString * const TVCMainWindowSelectionChangedNotification = @"TVCMainWindowSelectionChangedNotification";
 
+static NSString * _Nullable TVCMainWindowConnectionStatusForClient(IRCClient *client)
+{
+	if (client == nil) {
+		return nil;
+	}
+
+	NSString *status;
+
+	if (client.isQuitting) {
+		status = TXTLS(@"TVCMainWindow[connectionStatusDisconnecting]");
+	} else if (client.isConnected == NO && client.isConnecting == NO) {
+		if (client.isReconnecting) {
+			status = TXTLS(@"TVCMainWindow[connectionStatusWaitingToReconnect]");
+		} else {
+			status = TXTLS(@"TVCMainWindow[connectionStatusDisconnected]");
+		}
+	} else if (client.isConnecting && client.isLoggedIn == NO) {
+		if (client.connectType == IRCClientConnectModeRetry || client.connectType == IRCClientConnectModeReconnect) {
+			status = TXTLS(@"TVCMainWindow[connectionStatusReconnecting]");
+		} else {
+			status = TXTLS(@"TVCMainWindow[connectionStatusConnecting]");
+		}
+	} else if (client.isConnected && client.isLoggedIn == NO) {
+		status = TXTLS(@"TVCMainWindow[connectionStatusLoggingIn]");
+	} else {
+		status = TXTLS(@"TVCMainWindow[connectionStatusConnected]");
+	}
+
+	if (client.lastConnectionErrorSummary.length > 0) {
+		status = TXTLS(@"TVCMainWindow[connectionStatusWithError]", status, client.lastConnectionErrorSummary);
+	}
+
+	return status;
+}
+
 @interface TVCMainWindow ()
 @property (nonatomic, weak, readwrite) IBOutlet TVCMainWindowChannelView *channelView;
 @property (nonatomic, weak, readwrite) IBOutlet TVCMainWindowTitlebarAccessoryView *titlebarAccessoryView;
@@ -198,6 +233,8 @@ NSString * const TVCMainWindowSelectionChangedNotification = @"TVCMainWindowSele
 
 	[self setupTrees];
 
+	[self configureKeyboardNavigationAndAccessibility];
+
 	[TVCDockIcon drawWithoutCount];
 
 	[self observeNotifications];
@@ -243,6 +280,17 @@ NSString * const TVCMainWindowSelectionChangedNotification = @"TVCMainWindowSele
 							   selector:@selector(themeVarietyChanged:)
 								   name:TPCThemeVarietyChangedNotification
 								 object:nil];
+}
+
+- (void)configureKeyboardNavigationAndAccessibility
+{
+	self.serverList.accessibilityLabel = TXTLS(@"Accessibility[serverList]");
+	self.memberList.accessibilityLabel = TXTLS(@"Accessibility[memberList]");
+	self.inputTextField.accessibilityLabel = TXTLS(@"Accessibility[messageInput]");
+
+	self.serverList.nextKeyView = self.inputTextField;
+	self.inputTextField.nextKeyView = self.memberList;
+	self.memberList.nextKeyView = self.serverList;
 }
 
 - (void)maybeToggleFullscreenAfterLaunch
@@ -350,6 +398,8 @@ NSString * const TVCMainWindowSelectionChangedNotification = @"TVCMainWindowSele
 	[self saveWindowStateUsingKeyword:@"Main Window"];
 
 	[self saveContentSplitViewState];
+
+	[self.inputHistoryManager saveDrafts];
 
 	[self saveSelection];
 }
@@ -1027,6 +1077,8 @@ NSString * const TVCMainWindowSelectionChangedNotification = @"TVCMainWindowSele
 		[self completeNickname:YES];
 	} else if (tabKeyAction == TXTabKeyActionUnreadChannel) {
 		[self navigateChannelEntries:YES withNavigationType:TVCServerListNavigationMovementTypeUnread];
+	} else if (tabKeyAction == TXTabKeyActionNone) {
+		[self selectNextKeyView:nil];
 	}
 }
 
@@ -1038,6 +1090,8 @@ NSString * const TVCMainWindowSelectionChangedNotification = @"TVCMainWindowSele
 		[self completeNickname:NO];
 	} else if (tabKeyAction == TXTabKeyActionUnreadChannel) {
 		[self navigateChannelEntries:NO withNavigationType:TVCServerListNavigationMovementTypeUnread];
+	} else if (tabKeyAction == TXTabKeyActionNone) {
+		[self selectPreviousKeyView:nil];
 	}
 }
 
@@ -1256,6 +1310,8 @@ NSString * const TVCMainWindowSelectionChangedNotification = @"TVCMainWindowSele
 	}
 
 	self.inputTextField.attributedStringValue = [NSAttributedString attributedString];
+
+	[self.inputHistoryManager clearCurrentDraft];
 
 	[self.inputHistoryManager add:stringValue];
 
@@ -1966,9 +2022,16 @@ NSString * const TVCMainWindowSelectionChangedNotification = @"TVCMainWindowSele
 
 	if (u == nil && c == nil) {
 		self.title = [TPCApplicationInfo applicationName];
+		self.subtitle = nil;
+
+		[self setAccessibilityTitle:TXTLS(@"Accessibility[k79-1a]")];
 
 		return;
 	}
+
+	NSString *connectionStatus = TVCMainWindowConnectionStatusForClient(u);
+
+	self.subtitle = connectionStatus;
 
 	NSMutableString *title = [NSMutableString string];
 
@@ -2057,7 +2120,7 @@ NSString * const TVCMainWindowSelectionChangedNotification = @"TVCMainWindowSele
 
 	self.title = title;
 
-	[self setAccessibilityTitle:TXTLS(@"Accessibility[k79-1a]")];
+	[self setAccessibilityTitle:TXTLS(@"Accessibility[mainWindowStatus]", connectionStatus)];
 }
 
 #pragma mark -

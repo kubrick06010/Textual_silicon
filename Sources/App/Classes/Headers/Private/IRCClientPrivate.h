@@ -57,6 +57,7 @@ enum {
 @property (nonatomic, copy, nullable) dispatch_block_t disconnectCallback;
 @property (nonatomic, assign, readwrite) IRCClientConnectMode connectType;
 @property (nonatomic, assign, readwrite) IRCClientDisconnectMode disconnectType;
+@property (nonatomic, copy, nullable, readwrite) NSString *lastConnectionErrorSummary;
 @property (nonatomic, assign) BOOL sidebarItemIsExpanded;
 @property (nonatomic, copy, readwrite) NSArray<IRCChannel *> *channelList;
 @property (nonatomic, weak, readwrite) IRCChannel *lastSelectedChannel;

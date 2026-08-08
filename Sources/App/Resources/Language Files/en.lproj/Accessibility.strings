@@ -46,5 +46,9 @@
 "9sn-xp" = "Query with User %@";
 
 "k79-1a" = "Main Window"; // Main window title description
+"mainWindowStatus" = "Main Window, %@";
+"serverList" = "Servers and channels";
+"memberList" = "Members in selected channel";
+"messageInput" = "Message input";
 
 "wbj-gr" = "Alert dialog %@";

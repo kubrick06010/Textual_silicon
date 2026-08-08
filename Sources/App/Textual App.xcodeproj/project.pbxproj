@@ -42,6 +42,7 @@
 		A20000000000000000000002 /* IRCIsonBatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* IRCIsonBatcher.m */; };
 		A20000000000000000000003 /* IRCIsonBatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000006 /* IRCIsonBatcherTests.m */; };
 		A10000000000000000000001 /* IRCMessageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* IRCMessageTests.m */; };
+		B10000000000000000000001 /* TPCPreferencesImportExportTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* TPCPreferencesImportExportTests.m */; };
 		A10000000000000000000002 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10000000000000000000005 /* XCTest.framework */; };
 		4C06DF2A20EC49A60055D09A /* IRCCommandIndexLocalData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4C3153A020EB676400448776 /* IRCCommandIndexLocalData.plist */; };
 		4C06DF2B20EC49A60055D09A /* IRCCommandIndexRemoteData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4C31539F20EB676400448776 /* IRCCommandIndexRemoteData.plist */; };
@@ -1451,6 +1452,7 @@
 		A20000000000000000000005 /* IRCIsonBatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IRCIsonBatcher.h; sourceTree = "<group>"; };
 		A20000000000000000000006 /* IRCIsonBatcherTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCIsonBatcherTests.m; sourceTree = "<group>"; };
 		A10000000000000000000003 /* IRCMessageTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCMessageTests.m; sourceTree = "<group>"; };
+		B10000000000000000000003 /* TPCPreferencesImportExportTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TPCPreferencesImportExportTests.m; sourceTree = "<group>"; };
 		A10000000000000000000004 /* TextualCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TextualCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000005 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 		4C06E13A20EC4AC40055D09A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/TDCServerPropertiesSheet.xib; sourceTree = "<group>"; };
@@ -3613,6 +3615,7 @@
 		A10000000000000000000006 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				B10000000000000000000003 /* TPCPreferencesImportExportTests.m */,
 				A60000000000000000000004 /* IRCConnectionEncodingTests.m */,
 				A70000000000000000000004 /* IRCIsonTransportMockTests.m */,
 				A90000000000000000000006 /* IRCMonitorReplyTests.m */,
@@ -4758,6 +4761,7 @@
 				A30000000000000000000003 /* IRCNicknameCaseMappingTests.m in Sources */,
 				A20000000000000000000003 /* IRCIsonBatcherTests.m in Sources */,
 				A10000000000000000000001 /* IRCMessageTests.m in Sources */,
+				B10000000000000000000001 /* TPCPreferencesImportExportTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

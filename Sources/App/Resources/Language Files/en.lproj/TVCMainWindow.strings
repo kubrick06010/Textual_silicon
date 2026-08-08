@@ -62,6 +62,15 @@
 "nxz-l9" = " (away)";
 "6wz-pd" = "%1$@ (%2$@)";
 
+"connectionStatusConnected" = "Connected";
+"connectionStatusDisconnected" = "Disconnected";
+"connectionStatusDisconnecting" = "Disconnecting…";
+"connectionStatusConnecting" = "Connecting…";
+"connectionStatusLoggingIn" = "Logging in…";
+"connectionStatusReconnecting" = "Reconnecting…";
+"connectionStatusWaitingToReconnect" = "Waiting to reconnect…";
+"connectionStatusWithError" = "%1$@ — %2$@";
+
 "iph-a9" = "Loading configuration…";
 "5g1-i9" = "Importing preferences…";
 

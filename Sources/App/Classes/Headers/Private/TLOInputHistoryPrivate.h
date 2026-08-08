@@ -50,6 +50,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)noteInputHistoryObjectScopeDidChange;
 
+- (void)saveDrafts;
+- (void)clearCurrentDraft;
+
 - (void)add:(NSAttributedString *)string;
 
 - (nullable NSAttributedString *)up:(NSAttributedString *)string;

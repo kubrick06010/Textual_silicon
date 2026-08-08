@@ -125,17 +125,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 	NSError *parseError = nil;
 
-	NSDictionary *propertyList =
+	id propertyListObject =
 	[NSPropertyListSerialization propertyListWithData:fileContents options:NSPropertyListImmutable format:NULL error:&parseError];
 
 	/* Perform actual import if we have the dictionary. */
-	if (propertyList == nil) {
+	if ([propertyListObject isKindOfClass:[NSDictionary class]] == NO) {
 		if (parseError) {
 			LogToConsoleError("Import failed: %{public}@", parseError.localizedDescription);
+		} else {
+			LogToConsoleError("Import failed because the property list root is not a dictionary");
 		}
 
 		return;
 	}
+
+	NSDictionary *propertyList = propertyListObject;
 
 	/* The loading screen is a generic way to show something during import */
 	[mainWindowLoadingScreen() showProgressViewWithReason:TXTLS(@"TVCMainWindow[5g1-i9]")];
@@ -192,12 +196,14 @@ NS_ASSUME_NONNULL_BEGIN
 	}
 	else if ([key isEqualToString:IRCWorldClientListDefaultsKey])
 	{
-		if ([object isKindOfClass:[NSArray class]] == NO) {
+		NSArray<NSDictionary<NSString *, id> *> *clientConfigurations = [self clientConfigurationsFromImportObject:object];
+
+		if (clientConfigurations == nil) {
 			return;
 		}
 
-		[object enumerateObjectsUsingBlock:^(id object, NSUInteger index, BOOL *stop) {
-			[self importClientConfiguration:object];
+		[clientConfigurations enumerateObjectsUsingBlock:^(NSDictionary<NSString *, id> *clientConfiguration, NSUInteger index, BOOL *stop) {
+			[self importClientConfiguration:clientConfiguration];
 		}];
 	}
 	else
@@ -206,9 +212,50 @@ NS_ASSUME_NONNULL_BEGIN
 	}
 }
 
++ (nullable NSArray<NSDictionary<NSString *, id> *> *)clientConfigurationsFromImportObject:(id)object
+{
+	NSArray *clientConfigurations = nil;
+
+	if ([object isKindOfClass:[NSArray class]]) {
+		/* Textual 7.2.6/7.2.7 exports store the list directly. */
+		clientConfigurations = object;
+	} else if ([object isKindOfClass:[NSDictionary class]]) {
+		/* Keep accepting the older 7.2.x World Controller wrapper. */
+		id legacyClientConfigurations = object[@"clients"];
+
+		if ([legacyClientConfigurations isKindOfClass:[NSArray class]]) {
+			clientConfigurations = legacyClientConfigurations;
+		}
+	}
+
+	if (clientConfigurations == nil) {
+		LogToConsoleError("Import ignored because the client configuration list has an unsupported format");
+
+		return nil;
+	}
+
+	NSMutableArray<NSDictionary<NSString *, id> *> *validatedConfigurations =
+	[NSMutableArray arrayWithCapacity:clientConfigurations.count];
+
+	for (id clientConfiguration in clientConfigurations) {
+		if ([clientConfiguration isKindOfClass:[NSDictionary class]] == NO) {
+			/* Reject the complete list rather than silently dropping one connection. */
+			LogToConsoleError("Import ignored because a client configuration is not a dictionary");
+
+			return nil;
+		}
+
+		[validatedConfigurations addObject:[clientConfiguration copy]];
+	}
+
+	return [validatedConfigurations copy];
+}
+
 + (void)importClientConfiguration:(NSDictionary<NSString *, id> *)config
 {
-	NSParameterAssert(config != nil);
+	if ([config isKindOfClass:[NSDictionary class]] == NO) {
+		return;
+	}
 
 	IRCClientConfig *clientConfig = [[IRCClientConfig alloc] initWithDictionary:config];
 

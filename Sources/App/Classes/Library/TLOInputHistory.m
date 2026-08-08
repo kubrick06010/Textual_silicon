@@ -39,6 +39,7 @@
 #import "NSObjectHelperPrivate.h"
 #import "TXMasterController.h"
 #import "TPCPreferencesLocal.h"
+#import "TPCPreferencesUserDefaults.h"
 #import "IRCClient.h"
 #import "IRCChannel.h"
 #import "IRCWorld.h"
@@ -54,10 +55,12 @@ NS_ASSUME_NONNULL_BEGIN
 #define _inputHistoryMax						100
 
 NSString * const _inputHistoryGlobalObjectKey	= @"TLOInputHistoryDefaultObject";
+NSString * const _inputDraftsUserDefaultsKey	= @"Window -> Main Window -> Input Drafts";
 
 @interface TLOInputHistory ()
 @property (nonatomic, weak) TVCMainWindow *window;
 @property (nonatomic, strong) NSMutableDictionary *historyObjects;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSString *> *drafts;
 @property (nonatomic, copy, nullable) NSString *currentTreeItem;
 @end
 
@@ -102,6 +105,17 @@ NSString * const _inputHistoryGlobalObjectKey	= @"TLOInputHistoryDefaultObject";
 - (void)prepareInitialState
 {
 	self.historyObjects = [NSMutableDictionary dictionary];
+	self.drafts = [NSMutableDictionary dictionary];
+
+	NSDictionary *storedDrafts = [RZUserDefaults() dictionaryForKey:_inputDraftsUserDefaultsKey];
+
+	for (id key in storedDrafts) {
+		id value = storedDrafts[key];
+
+		if ([key isKindOfClass:[NSString class]] && [value isKindOfClass:[NSString class]]) {
+			self.drafts[key] = value;
+		}
+	}
 }
 
 - (void)destroy:(IRCTreeItem *)treeItem
@@ -122,6 +136,7 @@ NSString * const _inputHistoryGlobalObjectKey	= @"TLOInputHistoryDefaultObject";
 		NSString *itemId = treeItem.uniqueIdentifier;
 
 		[self.historyObjects removeObjectForKey:itemId];
+		[self.drafts removeObjectForKey:itemId];
 
 		if ([self.currentTreeItem isEqualToString:itemId]) {
 			self.currentTreeItem = nil;
@@ -222,10 +237,64 @@ NSString * const _inputHistoryGlobalObjectKey	= @"TLOInputHistoryDefaultObject";
 		if (currentObject == nil) {
 			currentObject = [TLOInputHistoryObject new];
 
+			NSString *storedDraft = self.drafts[currentObjectKey];
+
+			if (storedDraft.length > 0) {
+				currentObject.lastHistoryItem = [[NSAttributedString alloc] initWithString:storedDraft];
+			}
+
 			self.historyObjects[currentObjectKey] = currentObject;
 		}
 
 		return currentObject;
+	}
+}
+
+- (void)saveDrafts
+{
+	@synchronized(self.historyObjects) {
+		TLOInputHistoryObject *currentObject = [self currentObjectForFocusedTreeView];
+
+		if (currentObject && self.window.inputTextField) {
+			currentObject.lastHistoryItem = self.window.inputTextField.attributedStringValue;
+		}
+
+		NSMutableDictionary<NSString *, NSString *> *drafts = [self.drafts mutableCopy];
+
+		[self.historyObjects enumerateKeysAndObjectsUsingBlock:^(NSString *key, TLOInputHistoryObject *object, BOOL *stop) {
+			NSString *draft = object.lastHistoryItem.string;
+
+			if (draft.length > 0) {
+				drafts[key] = draft;
+			} else {
+				[drafts removeObjectForKey:key];
+			}
+		}];
+
+		self.drafts = drafts;
+
+		[RZUserDefaults() setObject:[drafts copy] forKey:_inputDraftsUserDefaultsKey];
+	}
+}
+
+- (void)clearCurrentDraft
+{
+	@synchronized(self.historyObjects) {
+		TLOInputHistoryObject *currentObject = [self currentObjectForFocusedTreeView];
+
+		currentObject.lastHistoryItem = nil;
+
+		NSString *currentObjectKey = nil;
+
+		if ([TPCPreferences inputHistoryIsChannelSpecific]) {
+			currentObjectKey = self.currentTreeItem;
+		} else {
+			currentObjectKey = _inputHistoryGlobalObjectKey;
+		}
+
+		if (currentObjectKey) {
+			[self.drafts removeObjectForKey:currentObjectKey];
+		}
 	}
 }
 

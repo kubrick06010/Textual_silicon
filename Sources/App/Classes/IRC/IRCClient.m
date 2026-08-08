@@ -5754,8 +5754,14 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 - (void)changeStateOffWithError:(nullable NSError *)disconnectError
 {
 	if (self.isConnecting == NO && self.isConnected == NO) {
+		self.lastConnectionErrorSummary = disconnectError.localizedDescription;
+
+		[mainWindow() updateTitleFor:self];
+
 		return;
 	}
+
+	self.lastConnectionErrorSummary = disconnectError.localizedDescription;
 
 	BOOL isTerminating = self.isTerminating;
 
@@ -11435,6 +11441,7 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	self.connectType = connectMode;
 
 	self.disconnectType = IRCClientDisconnectModeNormal;
+	self.lastConnectionErrorSummary = nil;
 
 	self.isConnecting = YES;
 
