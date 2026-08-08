@@ -176,26 +176,6 @@ typedef NS_ENUM(NSUInteger, IRCClientRequestedCommandVisibility)
 
 @implementation IRCClientRequestedCommands (Helpers)
 
-- (BOOL)inVisibleIsonRequest
-{
-	return ([self commandHiddenState:IRCRemoteCommandIson] == IRCClientRequestedCommandVisibilityVisible);
-}
-
-- (void)recordIsonRequestOpened
-{
-	[self addCommand:IRCRemoteCommandIson hiddenResponse:YES];
-}
-
-- (void)recordIsonRequestOpenedAsVisible
-{
-	[self addCommand:IRCRemoteCommandIson hiddenResponse:NO];
-}
-
-- (void)recordIsonRequestClosed
-{
-	[self removeCommand:IRCRemoteCommandIson];
-}
-
 #if 0
 - (BOOL)inVisibleMonitorRequest
 {

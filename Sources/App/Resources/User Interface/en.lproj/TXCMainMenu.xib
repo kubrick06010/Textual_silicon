@@ -983,7 +983,7 @@ CQ
                                     <action selector="openHelpMenuItem:" target="267" id="ell-Ij-llA"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Privacy Policy" tag="902" id="1710">
+                            <menuItem title="Privacy and Data" tag="902" id="1710">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="openHelpMenuItem:" target="267" id="7cF-3R-5pW"/>
@@ -996,11 +996,11 @@ CQ
                                     <action selector="openHelpMenuItem:" target="267" id="G7o-2j-dES"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Knowledge Base" tag="905" id="1686">
+                            <menuItem title="Documentation" tag="905" id="1686">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Knowledge Base" id="1687">
+                                <menu key="submenu" title="Documentation" id="1687">
                                     <items>
-                                        <menuItem title="Knowledge Base Home" tag="9050000" id="01c-Ny-YrB">
+                                        <menuItem title="Documentation Home" tag="9050000" id="01c-Ny-YrB">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="openHelpMenuItem:" target="267" id="ujf-rz-QKO"/>
