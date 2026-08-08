@@ -67,9 +67,9 @@
 		4C06E03E20EC4A100055D09A /* DIGreenBadgeLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535F20EB676400448776 /* DIGreenBadgeLeft.png */; };
 		4C06E03F20EC4A100055D09A /* DIGreenBadgeRight.png in Resources */ = {isa = PBXBuildFile; fileRef = 4C31536020EB676400448776 /* DIGreenBadgeRight.png */; };
 		4C06E04020EC4A100055D09A /* DIGreenBadgeCenter.png in Resources */ = {isa = PBXBuildFile; fileRef = 4C31536120EB676400448776 /* DIGreenBadgeCenter.png */; };
-		4C06E04C20EC4A2E0055D09A /* applicationIcon.iconset in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535920EB676400448776 /* applicationIcon.iconset */; };
+		4C06E04C20EC4A2E0055D09A /* applicationIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535820EB676400448776 /* applicationIcon.icns */; };
 		4C06E04D20EC4A2E0055D09A /* applicationIconBirthday.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535A20EB676400448776 /* applicationIconBirthday.icns */; };
-		4C06E04E20EC4A2F0055D09A /* applicationIcon.iconset in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535920EB676400448776 /* applicationIcon.iconset */; };
+		4C06E04E20EC4A2F0055D09A /* applicationIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535820EB676400448776 /* applicationIcon.icns */; };
 		4C06E04F20EC4A2F0055D09A /* applicationIconBirthday.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535A20EB676400448776 /* applicationIconBirthday.icns */; };
 		4C06E05320EC4A3D0055D09A /* Copyright Information for Images.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535620EB676400448776 /* Copyright Information for Images.txt */; };
 		4C06E05420EC4A3E0055D09A /* Copyright Information for Images.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4C31535620EB676400448776 /* Copyright Information for Images.txt */; };
@@ -4212,7 +4212,7 @@
 				4C06E02020EC4A060055D09A /* DIRedBadgeRight.png in Resources */,
 				4C06E1C420EC4AC40055D09A /* TVCChannelSelectionView.xib in Resources */,
 				4C06E03920EC4A0F0055D09A /* DIGreenBadgeRight.png in Resources */,
-				4C06E04E20EC4A2F0055D09A /* applicationIcon.iconset in Resources */,
+				4C06E04E20EC4A2F0055D09A /* applicationIcon.icns in Resources */,
 				4C06E1FC20EC4AC50055D09A /* TDCAboutDialog.xib in Resources */,
 				4C06E05320EC4A3D0055D09A /* Copyright Information for Images.txt in Resources */,
 				4C06E07A20EC4A540055D09A /* FormattingColor_11.png in Resources */,
@@ -4357,7 +4357,7 @@
 				4C06E02620EC4A060055D09A /* DIRedBadgeRight.png in Resources */,
 				4C06E1C320EC4AC40055D09A /* TVCChannelSelectionView.xib in Resources */,
 				4C06E03F20EC4A100055D09A /* DIGreenBadgeRight.png in Resources */,
-				4C06E04C20EC4A2E0055D09A /* applicationIcon.iconset in Resources */,
+				4C06E04C20EC4A2E0055D09A /* applicationIcon.icns in Resources */,
 				4C06E1FB20EC4AC50055D09A /* TDCAboutDialog.xib in Resources */,
 				4C06E05420EC4A3E0055D09A /* Copyright Information for Images.txt in Resources */,
 				4C06E08C20EC4A540055D09A /* FormattingColor_11.png in Resources */,
