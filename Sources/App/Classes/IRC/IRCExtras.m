@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
 	}
 	else if ([action isEqualToString:@"knowledge-base"])
 	{
-		[TLOpenLink openWithString:@"https://help.codeux.com/textual/" inBackground:NO];
+		[TLOpenLink openWithString:@"https://kubrick06010.github.io/Textual_silicon/" inBackground:NO];
 	}
 	else if ([action isEqualToString:@"newsletter"])
 	{

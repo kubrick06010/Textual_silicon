@@ -1677,7 +1677,7 @@ TEXTUAL_IGNORE_DEPRECATION_END
 					   otherButton:TXTLS(@"TDCServerPropertiesSheet[3ju-lo]")
 				   completionBlock:^(TDCAlertResponse buttonClicked, BOOL suppressed, id underlyingAlert) {
 			if (buttonClicked == TDCAlertResponseOther) {
-				[TLOpenLink openWithString:@"https://help.codeux.com/textual/Using-CertFP.kb" inBackground:NO];
+				[TLOpenLink openWithString:@"https://kubrick06010.github.io/Textual_silicon/user-guide/#certificate-authentication" inBackground:NO];
 			}
 		}];
 
