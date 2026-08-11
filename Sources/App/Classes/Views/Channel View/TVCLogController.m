@@ -102,9 +102,66 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSTimeInterval viewLoadedTimestamp;
 @property (readonly) TVCLogControllerPrintingOperationQueue *printingQueue;
 @property (readonly, copy) NSURL *baseURL;
+
+- (nullable NSString *)renderLogLine:(TVCLogLine *)logLine
+					previousLine:(nullable TVCLogLine *)previousLine
+					  resultInfo:(NSDictionary<NSString *, id> ** _Nullable)resultInfo;
 @end
 
 NSString * const TVCLogControllerViewFinishedLoadingNotification = @"TVCLogControllerViewFinishedLoadingNotification";
+
+NSTimeInterval const TVCLogControllerMessageGroupingMaximumInterval = (5.0 * 60.0);
+
+typedef NS_ENUM(NSUInteger, TVCLogLineGroupingFamily) {
+	TVCLogLineGroupingFamilyNone = 0,
+	TVCLogLineGroupingFamilyPrivateMessage,
+	TVCLogLineGroupingFamilyAction
+};
+
+static TVCLogLineGroupingFamily TVCLogLineGroupingFamilyForLineType(TVCLogLineType lineType)
+{
+	if (lineType == TVCLogLineTypePrivateMessage || lineType == TVCLogLineTypePrivateMessageNoHighlight) {
+		return TVCLogLineGroupingFamilyPrivateMessage;
+	}
+
+	if (lineType == TVCLogLineTypeAction || lineType == TVCLogLineTypeActionNoHighlight) {
+		return TVCLogLineGroupingFamilyAction;
+	}
+
+	return TVCLogLineGroupingFamilyNone;
+}
+
+BOOL TVCLogLineShouldGroupWithPreviousLine(TVCLogLine *currentLine,
+										 TVCLogLine * _Nullable previousLine,
+										 BOOL currentLineHighlighted,
+										 BOOL startsNewSession)
+{
+	NSCParameterAssert(currentLine != nil);
+
+	TVCLogLineGroupingFamily currentFamily = TVCLogLineGroupingFamilyForLineType(currentLine.lineType);
+	TVCLogLineGroupingFamily previousFamily = TVCLogLineGroupingFamilyNone;
+
+	if (previousLine != nil) {
+		previousFamily = TVCLogLineGroupingFamilyForLineType(previousLine.lineType);
+	}
+
+	if (previousLine == nil ||
+		currentLineHighlighted ||
+		currentLine.isFirstForDay ||
+		startsNewSession ||
+		currentFamily == TVCLogLineGroupingFamilyNone ||
+		currentFamily != previousFamily ||
+		currentLine.memberType != previousLine.memberType ||
+		currentLine.nickname.length == 0 ||
+		[previousLine.nickname isEqualToString:currentLine.nickname] == NO)
+	{
+		return NO;
+	}
+
+	NSTimeInterval interval = [currentLine.receivedAt timeIntervalSinceDate:previousLine.receivedAt];
+
+	return (interval >= 0.0 && interval <= TVCLogControllerMessageGroupingMaximumInterval);
+}
 
 @implementation TVCLogController
 
@@ -482,11 +539,15 @@ NSString * const TVCLogControllerViewFinishedLoadingNotification = @"TVCLogContr
 
 	NSMutableArray<THOPluginDidPostNewMessageConcreteObject *> *pluginObjects = nil;
 
+	TVCLogLine *previousLine = nil;
+
 	for (TVCLogLine *logLine in oldLines) {
 		/* Render result info HTML */
 		NSDictionary<NSString *, id> *resultInfo = nil;
 
-		NSString *html = [self renderLogLine:logLine resultInfo:&resultInfo];
+		NSString *html = [self renderLogLine:logLine previousLine:previousLine resultInfo:&resultInfo];
+
+		previousLine = logLine;
 
 		if (html == nil) {
 			LogToConsoleError("Failed to render log line %{public}@", logLine.description);
@@ -1145,11 +1206,15 @@ NSString * const TVCLogControllerViewFinishedLoadingNotification = @"TVCLogContr
 
 	NSMutableArray<THOPluginDidPostNewMessageConcreteObject *> *pluginObjects = nil;
 
+	TVCLogLine *previousLine = nil;
+
 	for (TVCLogLine *logLine in logLines) {
 		/* Render result info HTML */
 		NSDictionary<NSString *, id> *resultInfo = nil;
 
-		NSString *html = [self renderLogLine:logLine resultInfo:&resultInfo];
+		NSString *html = [self renderLogLine:logLine previousLine:previousLine resultInfo:&resultInfo];
+
+		previousLine = logLine;
 
 		if (html == nil) {
 			LogToConsoleError("Failed to render log line %{public}@", logLine.description);
@@ -1209,12 +1274,14 @@ NSString * const TVCLogControllerViewFinishedLoadingNotification = @"TVCLogContr
 		logLine = [logLine copy];
 	}
 
+	TVCLogLine *previousLine = self.lastLine;
+
 	self.lastLine = logLine;
 
 	TVCLogControllerPrintingBlock printBlock = ^(id operation) {
 		NSDictionary<NSString *, id> *resultInfo = nil;
 
-		NSString *html = [self renderLogLine:logLine resultInfo:&resultInfo];
+		NSString *html = [self renderLogLine:logLine previousLine:previousLine resultInfo:&resultInfo];
 
 		if (html == nil) {
 			LogToConsoleError("Failed to render log line %{public}@", logLine.description);
@@ -1313,7 +1380,9 @@ NSString * const TVCLogControllerViewFinishedLoadingNotification = @"TVCLogContr
 	_enqueueBlock(printBlock)
 }
 
-- (nullable NSString *)renderLogLine:(TVCLogLine *)logLine resultInfo:(NSDictionary<NSString *, id> ** _Nullable)resultInfo
+- (nullable NSString *)renderLogLine:(TVCLogLine *)logLine
+					previousLine:(nullable TVCLogLine *)previousLine
+					  resultInfo:(NSDictionary<NSString *, id> ** _Nullable)resultInfo
 {
 	NSParameterAssert(logLine != nil);
 
@@ -1367,6 +1436,13 @@ NSString * const TVCLogControllerViewFinishedLoadingNotification = @"TVCLogContr
 
 	NSDate *receivedAt = logLine.receivedAt;
 
+	BOOL startsNewSession = (previousLine != nil && previousLine.sessionIdentifier != logLine.sessionIdentifier);
+
+	BOOL groupedWithPrevious = TVCLogLineShouldGroupWithPreviousLine(logLine,
+														  previousLine,
+														  highlighted,
+														  startsNewSession);
+
 	// ************************************************************************** /
 
 	NSMutableDictionary<NSString *, id> *pathAttributes = [NSMutableDictionary new];
@@ -1382,6 +1458,7 @@ NSString * const TVCLogControllerViewFinishedLoadingNotification = @"TVCLogContr
 	templateAttributes[@"timestamp"] = @(receivedAt.timeIntervalSince1970);
 
 	templateAttributes[@"formattedTimestamp"] = logLine.formattedTimestamp;
+	templateAttributes[@"compactTimestamp"] = (TXFormattedTimestamp(receivedAt, @"%H:%M") ?: @"");
 
 	templateAttributes[@"localizedTimestamp"] = TXFormatDateLongStyle(receivedAt, NO);
 
@@ -1423,6 +1500,7 @@ NSString * const TVCLogControllerViewFinishedLoadingNotification = @"TVCLogContr
 	}
 
 	templateAttributes[@"lineClassAttribute"] = classAttribute;
+	templateAttributes[@"isGroupedWithPrevious"] = @(groupedWithPrevious);
 
 	// ---- //
 
@@ -1561,6 +1639,12 @@ NSString * const TVCLogControllerViewFinishedLoadingNotification = @"TVCLogContr
 	templateTokens[@"isReloadingStyle"] = @(self.reloadingTheme);
 
 	templateTokens[@"operatingSystemVersion"] = [XRSystemInformation systemStandardVersion];
+
+	if ([TPCPreferences messagePresentationStyle] == TVCLogMessagePresentationStyleChat) {
+		templateTokens[@"messagePresentationStyleToken"] = @"chat";
+	} else {
+		templateTokens[@"messagePresentationStyleToken"] = @"classic";
+	}
 
 	TVCMainWindowAppearance *appearance = self.attachedWindow.userInterfaceObjects;
 

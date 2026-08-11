@@ -16,6 +16,10 @@
 	data-member-type="{{nicknameType}}"
 {{/isRemoteMessage}}
 
+{{#isGroupedWithPrevious}}
+	data-grouped="true"
+{{/isGroupedWithPrevious}}
+
 	data-timestamp="{{timestamp}}">
 
 {{#isEncrypted}}
@@ -36,7 +40,7 @@
 			{{^ isEmpty(nicknameColorStyle) }}
 			style="color: {{nicknameColorStyle}};"
 			{{/ isEmpty(nicknameColorStyle) }}
-		{{/nicknameColorHashingEnabled}}>{{formattedNickname}}</span>
+		{{/nicknameColorHashingEnabled}}><span class="classicNickname" data-nickname="{{nickname}}">{{formattedNickname}}</span><span class="chatNickname" data-nickname="{{nickname}}">{{nickname}}</span></span>
 
 	<span class="message">{{{formattedMessage}}}
 
@@ -49,5 +53,5 @@
 
 	{{^ isEmpty(localizedTimestamp) }}
 		title="{{localizedTimestamp}}"
-	{{/ isEmpty(localizedTimestamp) }}>{{formattedTimestamp}} </span>
+	{{/ isEmpty(localizedTimestamp) }}><span class="classicTimestamp">{{formattedTimestamp}}</span><span class="chatTimestamp">{{compactTimestamp}}</span> </span>
 </div>

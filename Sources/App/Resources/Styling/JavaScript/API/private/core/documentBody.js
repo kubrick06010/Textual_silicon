@@ -203,6 +203,70 @@ Textual.changeTextSizeMultiplier = function(sizeMultiplier) /* PUBLIC */
 	}
 };
 
+_Textual.setMessagePresentationStyle = function(presentationStyle) /* PRIVATE */
+{
+	if (presentationStyle !== "chat") {
+		presentationStyle = "classic";
+	}
+
+	var documentBody = document.body;
+
+	if (documentBody.getAttribute("data-message-presentation") === presentationStyle) {
+		return;
+	}
+
+	var scrolledElement = _TextualScroller._scrolledElement;
+
+	if (!scrolledElement) {
+		documentBody.setAttribute("data-message-presentation", presentationStyle);
+
+		return;
+	}
+
+	var atBottom = TextualScroller.isScrolledToBottom();
+	var anchorElement = null;
+	var anchorTop = 0;
+
+	if (atBottom === false) {
+		var visibleTop = 0;
+		var visibleBottom = window.innerHeight;
+
+		if (scrolledElement !== documentBody && scrolledElement !== document.documentElement) {
+			var scrolledElementBounds = scrolledElement.getBoundingClientRect();
+
+			visibleTop = scrolledElementBounds.top;
+			visibleBottom = scrolledElementBounds.bottom;
+		}
+
+		var messageBuffer = MessageBuffer.bufferElement();
+
+		if (messageBuffer) {
+			var messageLines = messageBuffer.querySelectorAll("div.line[id^='line-']");
+
+			for (var i = 0; i < messageLines.length; i++) {
+				var messageLineBounds = messageLines[i].getBoundingClientRect();
+
+				if (messageLineBounds.bottom >= visibleTop && messageLineBounds.top <= visibleBottom) {
+					anchorElement = messageLines[i];
+					anchorTop = messageLineBounds.top;
+
+					break;
+				}
+			}
+		}
+	}
+
+	documentBody.setAttribute("data-message-presentation", presentationStyle);
+
+	if (atBottom) {
+		TextualScroller.scrollToBottom();
+	} else if (anchorElement) {
+		var anchorOffset = (anchorElement.getBoundingClientRect().top - anchorTop);
+
+		scrolledElement.scrollTop += anchorOffset;
+	}
+};
+
 /* Line numbers */
 HTMLDocument.prototype.getElementByLineNumber = function(lineNumber)
 {

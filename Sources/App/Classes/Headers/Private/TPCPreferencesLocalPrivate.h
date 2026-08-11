@@ -66,6 +66,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)setAppearance:(TXPreferredAppearance)appearance;
 
++ (void)setMessagePresentationStyle:(TVCLogMessagePresentationStyle)messagePresentationStyle;
+
 + (void)setThemeName:(NSString *)value;
 + (void)setThemeNameWithExistenceCheck:(NSString *)value;
 

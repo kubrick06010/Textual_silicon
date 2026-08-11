@@ -264,6 +264,8 @@
 	<string>Lucida Grande</string>
 	<key>Theme -&gt; Font Size</key>
 	<real>12</real>
+	<key>Theme -&gt; Message Presentation Style</key>
+	<integer>0</integer>
 	<key>Theme -&gt; Name</key>
 	<string>resource:Simplified</string>
 	<key>Theme -&gt; Nickname Format</key>

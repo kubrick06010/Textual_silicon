@@ -58,7 +58,7 @@ typedef NS_OPTIONS(NSUInteger, TPCPreferencesReloadAction) {
 	TPCPreferencesReloadActionServerList							= 1 << 15,
 	TPCPreferencesReloadActionServerListUnreadBadges				= 1 << 16,
 	TPCPreferencesReloadActionStyle									= 1 << 17,
-//	TPCPreferencesReloadActionStyleWithTableViews					= 1 << 18,
+	TPCPreferencesReloadActionMessagePresentationStyle			= 1 << 18,
 	TPCPreferencesReloadActionTextDirection							= 1 << 19,
 	TPCPreferencesReloadActionTextFieldFontSize						= 1 << 20,
 	TPCPreferencesReloadActionTextFieldSegmentedControllerOrigin	= 1 << 21,

@@ -1544,7 +1544,7 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <stackView distribution="equalSpacing" orientation="vertical" alignment="leading" spacing="14" verticalStackHuggingPriority="750" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Ks-KS-pKv">
-                                        <rect key="frame" x="42" y="58" width="341" height="76"/>
+                                        <rect key="frame" x="42" y="25" width="341" height="76"/>
                                         <subviews>
                                             <button translatesAutoresizingMaskIntoConstraints="NO" id="Gmu-Oh-Krb">
                                                 <rect key="frame" x="-2" y="59" width="343" height="18"/>
@@ -1610,15 +1610,16 @@
                                         </connections>
                                     </button>
                                     <box verticalHuggingPriority="750" alphaValue="0.5" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="v8u-aO-cik">
-                                        <rect key="frame" x="40" y="150" width="544" height="5"/>
+                                        <rect key="frame" x="40" y="117" width="544" height="5"/>
                                     </box>
                                     <box verticalHuggingPriority="750" alphaValue="0.5" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="RZ1-8W-O04">
-                                        <rect key="frame" x="40" y="207" width="544" height="5"/>
+                                        <rect key="frame" x="40" y="174" width="544" height="5"/>
                                     </box>
                                     <gridView xPlacement="trailing" yPlacement="fill" rowAlignment="firstBaseline" rowSpacing="12" columnSpacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Dwh-L6-1bu">
-                                        <rect key="frame" x="100" y="228" width="425" height="49"/>
+                                        <rect key="frame" x="100" y="195" width="425" height="82"/>
                                         <rows>
                                             <gridRow id="mZ9-hx-ewv"/>
+                                            <gridRow id="MPr-ow-Sty"/>
                                             <gridRow id="XiR-N0-kUX"/>
                                         </rows>
                                         <columns>
@@ -1628,7 +1629,7 @@
                                         <gridCells>
                                             <gridCell row="mZ9-hx-ewv" column="fVa-ZO-Yb4" id="oHW-zq-h02">
                                                 <textField key="contentView" focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Sgb-MI-xrH">
-                                                    <rect key="frame" x="6" y="32" width="162" height="16"/>
+                                                    <rect key="frame" x="6" y="65" width="162" height="16"/>
                                                     <textFieldCell key="cell" lineBreakMode="clipping" alignment="right" title="Main window appearance:" id="8Z0-DR-TbO">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1638,7 +1639,7 @@
                                             </gridCell>
                                             <gridCell row="mZ9-hx-ewv" column="Lzf-OU-P1K" id="Iv6-fi-vMO">
                                                 <popUpButton key="contentView" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="IpK-gF-a4e">
-                                                    <rect key="frame" x="171" y="25" width="154" height="25"/>
+                                                    <rect key="frame" x="171" y="58" width="154" height="25"/>
                                                     <popUpButtonCell key="cell" type="push" title="Your Mac's Default" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="Css-S7-CuP" id="Vx1-Tf-9xQ">
                                                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                                         <font key="font" usesAppearanceFont="YES"/>
@@ -1656,6 +1657,37 @@
                                                     <connections>
                                                         <action selector="onChangedAppearance:" target="-2" id="EIC-vs-75R"/>
                                                         <binding destination="G2Q-fc-ddg" name="selectedTag" keyPath="values.Appearance" id="nfE-87-3lM"/>
+                                                    </connections>
+                                                </popUpButton>
+                                            </gridCell>
+                                            <gridCell row="MPr-ow-Sty" column="fVa-ZO-Yb4" id="MPr-Lb-Cel">
+                                                <textField key="contentView" focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="MPr-Lb-Txt">
+                                                    <rect key="frame" x="20" y="32" width="148" height="16"/>
+                                                    <textFieldCell key="cell" lineBreakMode="clipping" alignment="right" title="Message presentation:" id="MPr-Lb-Cl">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                </textField>
+                                            </gridCell>
+                                            <gridCell row="MPr-ow-Sty" column="Lzf-OU-P1K" id="MPr-Pp-Cel">
+                                                <popUpButton key="contentView" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="MPr-Pp-But">
+                                                    <rect key="frame" x="171" y="25" width="125" height="25"/>
+                                                    <popUpButtonCell key="cell" type="push" title="Classic IRC" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="MPr-Cl-ssc" id="MPr-Pp-Cl">
+                                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                        <font key="font" usesAppearanceFont="YES"/>
+                                                        <menu key="menu" id="MPr-Me-Nu">
+                                                            <items>
+                                                                <menuItem title="Classic IRC" state="on" tag="0" id="MPr-Cl-ssc"/>
+                                                                <menuItem title="Chat" tag="1" id="MPr-Ch-at"/>
+                                                            </items>
+                                                        </menu>
+                                                    </popUpButtonCell>
+                                                    <accessibility description="Message Presentation Style"/>
+                                                    <connections>
+                                                        <accessibilityConnection property="title" destination="MPr-Lb-Txt" id="MPr-Ax-Ttl"/>
+                                                        <action selector="onChangedMessagePresentationStyle:" target="-2" id="MPr-Ac-Chg"/>
+                                                        <binding destination="G2Q-fc-ddg" name="selectedTag" keyPath="values.Theme -&gt; Message Presentation Style" id="MPr-Bn-Sel"/>
                                                     </connections>
                                                 </popUpButton>
                                             </gridCell>
@@ -1718,7 +1750,7 @@
                                         </gridCells>
                                     </gridView>
                                     <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iWl-Y8-qXs">
-                                        <rect key="frame" x="102" y="174" width="166" height="16"/>
+                                        <rect key="frame" x="102" y="141" width="166" height="16"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Arrange multiple channels:" id="aNN-WN-TzZ">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1726,7 +1758,7 @@
                                         </textFieldCell>
                                     </textField>
                                     <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dG4-2O-lpO">
-                                        <rect key="frame" x="271" y="167" width="125" height="25"/>
+                                        <rect key="frame" x="271" y="134" width="125" height="25"/>
                                         <popUpButtonCell key="cell" type="push" title="Top to bottom" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="5M2-Hy-cjn" id="2Va-c1-ec9">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" usesAppearanceFont="YES"/>

@@ -61,6 +61,12 @@ Use the application menus as the authoritative source for the shortcuts enabled 
 
 IRC formatting is interpreted by the server and by the active style. Test formatting in a low-risk channel before relying on it for moderation or automation, and remember that different clients may render the same formatting differently.
 
+## Message presentation
+
+Choose **Preferences > Style > General > Message presentation** to switch between the traditional `Classic IRC` layout and the denser `Chat` layout. `Classic IRC` remains the default. `Chat` uses compact sender and time columns and suppresses repeated metadata only for consecutive messages from the same sender. Ordinary messages and `/me` actions form separate groups; switching type, highlights, other events, date or session boundaries, and pauses longer than five minutes start a new visual group.
+
+Changing the presentation updates open conversations without reloading their history. Bundled styles support both modes. A custom style that replaces the message template may need to adopt the current default template tokens before `Chat` can reproduce the same grouping and alignment.
+
 ## Chat encryption
 
 When the optional advanced-encryption components are present, private conversations may expose Off-the-Record (OTR) actions. Verify fingerprints with the other participant through an independent channel before treating a conversation as authenticated. OTR does not make a public channel private and does not protect against a compromised endpoint.

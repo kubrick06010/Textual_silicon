@@ -44,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 TEXTUAL_EXTERN NSString * const TPCPreferencesThemeNameDefaultsKey;
 TEXTUAL_EXTERN NSString * const TPCPreferencesThemeFontNameDefaultsKey;
 TEXTUAL_EXTERN NSString * const TPCPreferencesThemeFontSizeDefaultsKey;
+TEXTUAL_EXTERN NSString * const TPCPreferencesMessagePresentationStyleDefaultsKey;
 
 TEXTUAL_EXTERN NSString * const TPCPreferencesThemeNameMissingLocallyDefaultsKey;
 TEXTUAL_EXTERN NSString * const TPCPreferencesThemeFontNameMissingLocallyDefaultsKey;
@@ -120,6 +121,11 @@ typedef NS_ENUM(NSUInteger, TXPreferredAppearance) {
 	TXPreferredAppearanceDark		= 2
 };
 
+typedef NS_ENUM(NSUInteger, TVCLogMessagePresentationStyle) {
+	TVCLogMessagePresentationStyleClassicIRC	= 0,
+	TVCLogMessagePresentationStyleChat			= 1
+};
+
 @interface TPCPreferences (TPCPreferencesLocal)
 + (BOOL)appNapEnabled;
 
@@ -193,6 +199,7 @@ typedef NS_ENUM(NSUInteger, TXPreferredAppearance) {
 
 + (BOOL)autoAddScrollbackMark;
 + (BOOL)showDateChanges;
++ (TVCLogMessagePresentationStyle)messagePresentationStyle;
 + (BOOL)showInlineMedia;
 + (BOOL)showJoinLeave;
 + (BOOL)displayServerMOTD;

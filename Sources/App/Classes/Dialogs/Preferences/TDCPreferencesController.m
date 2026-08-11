@@ -177,6 +177,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (IBAction)onChangedInputHistoryScheme:(id)sender;
 - (IBAction)onChangedMainInputTextViewFontSize:(id)sender; // changed
 - (IBAction)onChangedMainWindowSegmentedController:(id)sender;
+- (IBAction)onChangedMessagePresentationStyle:(id)sender;
 - (IBAction)onChangedScrollbackSaveLimit:(id)sender;
 - (IBAction)onChangedScrollbackVisibleLimit:(id)sender;
 - (IBAction)onChangedServerListUnreadBadgeColor:(id)sender;
@@ -1414,6 +1415,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)onChangedAppearance:(id)sender
 {
 	[TPCPreferences performReloadAction:TPCPreferencesReloadActionAppearance];
+}
+
+- (void)onChangedMessagePresentationStyle:(id)sender
+{
+	[TPCPreferences performReloadAction:TPCPreferencesReloadActionMessagePresentationStyle];
 }
 
 - (void)onChangedTheme:(id)sender

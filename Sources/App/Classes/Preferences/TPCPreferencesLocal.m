@@ -53,6 +53,7 @@ NSString * const TPCPreferencesThemeNameDefaultsKey	= @"Theme -> Name";
 
 NSString * const TPCPreferencesThemeFontNameDefaultsKey	= @"Theme -> Font Name";
 NSString * const TPCPreferencesThemeFontSizeDefaultsKey	= @"Theme -> Font Size";
+NSString * const TPCPreferencesMessagePresentationStyleDefaultsKey = @"Theme -> Message Presentation Style";
 
 NSString * const TPCPreferencesThemeNameMissingLocallyDefaultsKey = @"Theme -> Name -> Did Not Exist During Last Sync";
 
@@ -386,6 +387,27 @@ NSUInteger const TPCPreferencesDictionaryVersion = 602;
 + (BOOL)showDateChanges
 {
 	return [RZUserDefaults() boolForKey:@"DisplayEventInLogView -> Date Changes"];
+}
+
++ (void)setMessagePresentationStyle:(TVCLogMessagePresentationStyle)messagePresentationStyle
+{
+	if (messagePresentationStyle != TVCLogMessagePresentationStyleChat) {
+		messagePresentationStyle = TVCLogMessagePresentationStyleClassicIRC;
+	}
+
+	[RZUserDefaults() setUnsignedInteger:messagePresentationStyle
+								 forKey:TPCPreferencesMessagePresentationStyleDefaultsKey];
+}
+
++ (TVCLogMessagePresentationStyle)messagePresentationStyle
+{
+	NSUInteger storedValue = [RZUserDefaults() unsignedIntegerForKey:TPCPreferencesMessagePresentationStyleDefaultsKey];
+
+	if (storedValue == TVCLogMessagePresentationStyleChat) {
+		return TVCLogMessagePresentationStyleChat;
+	}
+
+	return TVCLogMessagePresentationStyleClassicIRC;
 }
 
 + (void)setShowInlineMedia:(BOOL)showInlineMedia

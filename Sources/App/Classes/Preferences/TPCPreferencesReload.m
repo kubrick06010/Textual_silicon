@@ -88,6 +88,10 @@ NS_ASSUME_NONNULL_BEGIN
 		reloadAction |= TPCPreferencesReloadActionStyle;
 	}
 
+	if ([keys containsObject:TPCPreferencesMessagePresentationStyleDefaultsKey]) {
+		reloadAction |= TPCPreferencesReloadActionMessagePresentationStyle;
+	}
+
 	/* Highlight lists */
 	if ([keys containsObject:@"Highlight List -> Excluded Matches"] ||
 		[keys containsObject:@"Highlight List -> Primary Matches"])
@@ -253,6 +257,20 @@ NS_ASSUME_NONNULL_BEGIN
 		[mainWindow() reloadTheme];
 
 		didReloadActiveStyle = YES;
+	}
+
+	/* Message presentation only changes CSS state in existing documents. Keeping
+	 the WebViews alive preserves selection, history position, and scroll anchor. */
+	if ((reloadAction & TPCPreferencesReloadActionMessagePresentationStyle) == TPCPreferencesReloadActionMessagePresentationStyle) {
+		NSString *presentationToken = @"classic";
+
+		if ([TPCPreferences messagePresentationStyle] == TVCLogMessagePresentationStyleChat) {
+			presentationToken = @"chat";
+		}
+
+		[worldController() evaluateFunctionOnAllViews:@"_Textual.setMessagePresentationStyle"
+										 arguments:@[presentationToken]
+										   onQueue:YES];
 	}
 
 	/* Server list */

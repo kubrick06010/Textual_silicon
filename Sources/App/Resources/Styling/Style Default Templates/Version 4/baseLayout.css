@@ -226,6 +226,123 @@ tt {
 .effect[data-background-color='97'] { background-color: #e2e2e2; }
 .effect[data-background-color='98'] { background-color: #ffffff; }
 
+/* Message presentation
+
+   Classic IRC remains the default and preserves each style's existing layout.
+   Chat presentation is an additive layer so switching modes does not rebuild
+   the WebView or rewrite user-configured nickname and timestamp formats. */
+.chatNickname,
+.chatTimestamp {
+	display: none;
+}
+
+body[data-message-presentation='chat'] {
+	--chat-message-metadata-gap: 0.5em;
+	--chat-message-sender-gap: 0.75em;
+	--chat-message-sender-width: clamp(6.5em, 18vw, 10em);
+}
+
+body[data-message-presentation='chat'] .classicNickname,
+body[data-message-presentation='chat'] .classicTimestamp {
+	display: none;
+}
+
+body[data-message-presentation='chat'] .chatNickname,
+body[data-message-presentation='chat'] .chatTimestamp {
+	display: inline;
+}
+
+/* Default templates wrap message contents in a paragraph. Sulaco places the
+   same elements directly under div.line. The outer grid supports both forms. */
+body[data-message-presentation='chat'] div.line.text {
+	display: grid;
+	grid-template-columns: max-content var(--chat-message-sender-width) max-content minmax(0, 1fr);
+	column-gap: var(--chat-message-metadata-gap);
+	align-items: baseline;
+}
+
+body[data-message-presentation='chat'] div.line.text > p {
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: max-content max-content minmax(0, 1fr);
+	column-gap: var(--chat-message-metadata-gap);
+	align-items: baseline;
+	margin-left: 0 !important;
+	text-indent: 0 !important;
+}
+
+body[data-message-presentation='chat'] div.line.text > p > .time {
+	grid-column: 1;
+	width: auto !important;
+	font-size: 0.82em;
+	opacity: 0.65;
+	white-space: nowrap;
+}
+
+body[data-message-presentation='chat'] div.line.text > p > .encryptionLock {
+	grid-column: 2;
+}
+
+body[data-message-presentation='chat'] div.line.text > p > .message {
+	display: grid;
+	grid-column: 3;
+	grid-template-columns: var(--chat-message-sender-width) minmax(0, 1fr);
+	column-gap: var(--chat-message-sender-gap);
+	min-width: 0;
+	width: auto !important;
+}
+
+body[data-message-presentation='chat'] div.line.text .senderContainer {
+	min-width: 0;
+	overflow: hidden;
+	font-weight: 600;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+body[data-message-presentation='chat'] div.line.text .innerMessage {
+	min-width: 0;
+}
+
+/* Sulaco's direct-child template. */
+body[data-message-presentation='chat'] div.line.text > .time {
+	grid-column: 1;
+	grid-row: 1;
+	width: auto !important;
+}
+
+body[data-message-presentation='chat'] div.line.text > .sender {
+	grid-column: 2;
+	grid-row: 1;
+	width: auto !important;
+}
+
+body[data-message-presentation='chat'] div.line.text > .encryptionLock {
+	grid-column: 3;
+	grid-row: 1;
+}
+
+body[data-message-presentation='chat'] div.line.text > .message {
+	grid-column: 4;
+	grid-row: 1;
+	min-width: 0;
+	width: auto !important;
+}
+
+/* Grouped lines retain their metadata columns so message bodies do not jump.
+   Hovering reveals the compact timestamp without repeating the sender. */
+body[data-message-presentation='chat'] div.line[data-grouped='true'] .senderContainer,
+body[data-message-presentation='chat'] div.line[data-grouped='true'] > .sender,
+body[data-message-presentation='chat'] div.line[data-grouped='true'] > p > .time,
+body[data-message-presentation='chat'] div.line[data-grouped='true'] > .time {
+	visibility: hidden;
+}
+
+body[data-message-presentation='chat'] div.line[data-grouped='true']:hover > p > .time,
+body[data-message-presentation='chat'] div.line[data-grouped='true']:hover > .time {
+	visibility: visible;
+}
+
 /* Selection */
 body[data-selected="false"] {
 	pointer-events: none;

@@ -41,6 +41,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class ICLPayload;
 
+TEXTUAL_EXTERN NSTimeInterval const TVCLogControllerMessageGroupingMaximumInterval;
+
+TEXTUAL_EXTERN BOOL TVCLogLineShouldGroupWithPreviousLine(TVCLogLine *currentLine,
+											 TVCLogLine * _Nullable previousLine,
+											 BOOL currentLineHighlighted,
+											 BOOL startsNewSession);
+
 @interface TVCLogController ()
 @property (nonatomic, assign, readwrite, getter=viewIsEncrypted) BOOL encrypted;
 
