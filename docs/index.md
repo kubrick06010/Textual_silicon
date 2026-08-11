@@ -32,7 +32,7 @@ The documentation is versioned with the source repository. If a behavior is stil
 
 - The supported target is Apple Silicon (`arm64`).
 - The project currently targets macOS 12.0 or later.
-- Automated release artifacts are currently unsigned and not notarized. They are published as GitHub prereleases until the project has its own distribution identity and entitlements.
+- Automated release artifacts are currently ad hoc signed and not notarized. They are published as GitHub prereleases until the project has its own Developer ID distribution identity and production entitlements.
 - Compatibility with existing Textual preferences, connections, styles, plugins, and logs is a project goal, but migration should be backed up and tested before relying on it.
 
 ## Where to ask for help

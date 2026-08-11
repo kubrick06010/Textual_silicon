@@ -14,9 +14,17 @@ Download releases only from the project's [GitHub Releases](https://github.com/k
 
 1. Confirm that the release is intended for Apple Silicon (`arm64`).
 2. Download the accompanying SHA-256 checksum when one is provided and verify the archive locally.
-3. Keep in mind that current automated artifacts are unsigned and not notarized. macOS may require an explicit user approval before opening them.
+3. Keep in mind that current automated artifacts are ad hoc signed and not notarized. macOS may require an explicit user approval before opening them.
+4. If Finder reports that `Textual.app` is damaged after the checksum passes, remove the quarantine flag from the extracted app in Terminal:
 
-Do not treat an unsigned prerelease as a production or security-reviewed distribution. The release notes and the repository are the source of truth for each build.
+   ```sh
+   xattr -dr com.apple.quarantine /path/to/Textual.app
+   open /path/to/Textual.app
+   ```
+
+   This is a Gatekeeper workaround for the current prerelease distribution; it does not replace Developer ID signing and notarization.
+
+Do not treat an ad hoc signed prerelease as a production or security-reviewed distribution. The release notes and the repository are the source of truth for each build.
 
 ## First connection
 

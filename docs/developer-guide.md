@@ -81,7 +81,7 @@ Write original project documentation. Do not copy Codeux-hosted manuals or other
 
 ## Release workflow
 
-Pull requests and pushes to `master` build the unsigned Apple Silicon app and
+Pull requests and pushes to `master` build the ad hoc signed Apple Silicon app and
 retain it as a workflow artifact. An annotated tag beginning with `v` publishes
 the same package as a GitHub prerelease with generated notes and a SHA-256
 checksum:
@@ -97,7 +97,7 @@ Treat release tags as immutable. If a build must be replaced, fix the source
 and publish a new tag. A workflow retry may replace assets attached to the
 same existing release, but it does not move or create an unpushed tag. Until
 the project has its own audited distribution identity, these packages remain
-unsigned, unnotarized prereleases and must not be described as production
+ad hoc signed, unnotarized prereleases and must not be described as production
 distribution builds.
 
 ## Security and compatibility

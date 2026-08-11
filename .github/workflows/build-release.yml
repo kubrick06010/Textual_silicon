@@ -33,7 +33,7 @@ jobs:
           swift --version
           uname -m
 
-      - name: Build unsigned app
+      - name: Build ad hoc signed app
         run: |
           set -o pipefail
           xcodebuild \
@@ -43,16 +43,16 @@ jobs:
             -derivedDataPath "$RUNNER_TEMP/TextualDerivedData" \
             ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGNING_REQUIRED=YES \
+            CODE_SIGN_IDENTITY="-" \
             DEVELOPMENT_TEAM="" \
             PROVISIONING_PROFILE_SPECIFIER="" \
             CLANG_MODULE_CACHE_PATH="$RUNNER_TEMP/ModuleCache" \
             SWIFT_MODULE_CACHE_PATH="$RUNNER_TEMP/ModuleCache" \
             EXCLUDED_SOURCE_FILE_NAMES="applicationIcon.iconset" \
             TEXTUAL_BUNDLE_IDENTIFIER="com.kubrick06010.textual-silicon" \
-            TEXTUAL_GROUP_CONTAINER_IDENTIFIER="com.kubrick06010.textual-silicon" \
+            TEXTUAL_GROUP_CONTAINER_IDENTIFIER="com.kubrick06010.textual-silicon.group" \
             TEXTUAL_BUILT_WITH_LICENSE_MANAGER=0 \
             TEXTUAL_BUILT_WITH_SPARKLE_ENABLED=0 \
             build | tee "$RUNNER_TEMP/xcodebuild.log"
@@ -66,6 +66,7 @@ jobs:
           test -x "Build Results/Release/Textual.app/Contents/MacOS/Textual"
           lipo -archs "Build Results/Release/Textual.app/Contents/MacOS/Textual" | grep -qw arm64
           plutil -lint "Build Results/Release/Textual.app/Contents/Info.plist"
+          codesign --verify --deep --strict --verbose=2 "Build Results/Release/Textual.app"
 
       - name: Package artifact
         env:
@@ -79,7 +80,7 @@ jobs:
             version="${GITHUB_SHA:0:7}"
           fi
 
-          archive="Textual-Silicon-${version}-arm64-unsigned.zip"
+          archive="Textual-Silicon-${version}-arm64-adhoc.zip"
           mkdir -p artifacts
           ditto -c -k --sequesterRsrc --keepParent \
             "Build Results/Release/Textual.app" "artifacts/$archive"
@@ -93,7 +94,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
-          name: Textual-Silicon-arm64-unsigned
+          name: Textual-Silicon-arm64-adhoc
           path: artifacts/
           if-no-files-found: error
 
@@ -109,7 +110,7 @@ jobs:
       - name: Download packaged app
         uses: actions/download-artifact@v8
         with:
-          name: Textual-Silicon-arm64-unsigned
+          name: Textual-Silicon-arm64-adhoc
           path: artifacts
 
       - name: Publish GitHub prerelease
@@ -136,5 +137,5 @@ jobs:
               --title "Textual Silicon $GITHUB_REF_NAME" \
               --prerelease \
               --generate-notes \
-              --notes "Automated Apple-silicon build. This artifact is unsigned and not notarized; macOS may block it until it is explicitly allowed by the user."
+              --notes "Automated Apple-silicon build. This artifact is ad hoc signed but not notarized; macOS may block it until the quarantine attribute is removed or the app is explicitly allowed by the user."
           fi

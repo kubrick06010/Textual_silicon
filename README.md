@@ -26,9 +26,11 @@ git push origin v7.2.7-1
 The tag push is the publication trigger. Do not reuse or move a published tag;
 create a new version tag for a replacement build.
 
-The automated artifact is currently unsigned and not notarized. It is published
-as a prerelease until the project uses its own Apple Developer identity, bundle
-identifiers, and entitlements.
+The automated artifact is currently ad hoc signed but not notarized. It is
+published as a prerelease until the project uses its own Developer ID identity,
+notarization, bundle identifiers, and production entitlements. macOS may still
+block a downloaded ad hoc build because of the quarantine attribute; follow the
+installation note in the user guide if that happens.
 
 ## Resources
 

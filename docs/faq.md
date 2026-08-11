@@ -20,7 +20,7 @@ The current target is arm64 on macOS 12.0 or later. Intel compatibility is outsi
 
 ## Why is a GitHub release unsigned or blocked by macOS?
 
-The automated Apple Silicon artifacts are currently unsigned and not notarized. They are published as prereleases while the project establishes its own Apple Developer identity, bundle identifiers, entitlements, and distribution process. Verify the checksum and download only from the project repository before deciding whether to run a prerelease.
+The automated Apple Silicon artifacts are currently ad hoc signed and not notarized. They are published as prereleases while the project establishes its own Developer ID identity, bundle identifiers, entitlements, and distribution process. Verify the checksum and download only from the project repository before deciding whether to run a prerelease. If Finder reports the app as damaged after the checksum passes, remove its quarantine flag with `xattr -dr com.apple.quarantine /path/to/Textual.app` and launch it again.
 
 ## Can I install it beside the original Textual application?
 
