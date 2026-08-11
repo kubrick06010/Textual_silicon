@@ -1,4 +1,4 @@
-# Textual Silicon [![GitHub release](https://img.shields.io/github/v/release/kubrick06010/Textual_silicon)](https://github.com/kubrick06010/Textual_silicon/releases) ![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)
+# Textual Silicon [![GitHub release](https://img.shields.io/github/v/release/kubrick06010/Textual_silicon?include_prereleases)](https://github.com/kubrick06010/Textual_silicon/releases) ![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)
 
 > [!IMPORTANT]
 > This is an independent community project. It is not affiliated with, endorsed by, or supported by Codeux Software, LLC.
