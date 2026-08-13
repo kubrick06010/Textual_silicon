@@ -45,6 +45,7 @@
 		B10000000000000000000001 /* TPCPreferencesImportExportTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* TPCPreferencesImportExportTests.m */; };
 		C10000000000000000000001 /* TVCLogMessagePresentationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000003 /* TVCLogMessagePresentationTests.m */; };
 		D10000000000000000000001 /* TXNotificationEventPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000004 /* TXNotificationEventPolicy.m */; };
+		D10000000000000000000003 /* TXNotificationEventPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000004 /* TXNotificationEventPolicy.m */; };
 		D10000000000000000000002 /* TXNotificationEventPolicyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000006 /* TXNotificationEventPolicyTests.m */; };
 		E10000000000000000000001 /* TLONotificationControllerIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000003 /* TLONotificationControllerIntegrationTests.m */; };
 		A10000000000000000000002 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10000000000000000000005 /* XCTest.framework */; };
@@ -4981,6 +4982,7 @@
 				A40000000000000000000002 /* IRCIsonRoundCoordinator.m in Sources */,
 				A30000000000000000000002 /* IRCNicknameCaseMapping.m in Sources */,
 				A20000000000000000000002 /* IRCIsonBatcher.m in Sources */,
+				D10000000000000000000003 /* TXNotificationEventPolicy.m in Sources */,
 				4C06E63820EC55B90055D09A /* TXAppearance.m in Sources */,
 				4C06E63920EC55B90055D09A /* TXApplication.m in Sources */,
 				4C06E63A20EC55B90055D09A /* TXGlobalModels.m in Sources */,
