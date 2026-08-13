@@ -98,6 +98,7 @@
 #import "TLOInputHistoryPrivate.h"
 #import "TLOLocalization.h"
 #import "TLONotificationControllerPrivate.h"
+#import "../Headers/TXNotificationEventPolicy.h"
 #import "TLOpenLink.h"
 #import "TLOSoundPlayer.h"
 #import "TLOSpeechSynthesizerPrivate.h"
@@ -267,6 +268,9 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 @property (readonly, copy) NSArray<NSString *> *nickServSupportedSuccessfulIdentificationTokens;
 @property (nonatomic, strong, nullable) IRCChannel *rawDataLogQuery;
 @property (nonatomic, strong, nullable) IRCChannel *hiddenCommandResponsesQuery;
+@property (nonatomic, copy) NSArray<NSDictionary<NSString *, id> *> *notificationDiagnosticEvents;
+@property (nonatomic, strong) NSMutableArray<NSString *> *notificationDiagnosticResults;
+@property (nonatomic, assign) NSUInteger notificationDiagnosticEventIndex;
 @end
 
 @implementation IRCClient
@@ -1951,10 +1955,6 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 
 - (BOOL)notifyEvent:(TXNotificationType)eventType lineType:(TVCLogLineType)lineType target:(null_unspecified IRCChannel *)target nickname:(null_unspecified NSString *)nickname text:(null_unspecified NSString *)text userInfo:(nullable NSDictionary<NSString *, id> *)userInfo
 {
-	if (self.isTerminating) {
-		return NO;
-	}
-
 	BOOL isTextEvent =
 	(eventType == TXNotificationTypeHighlight			||
 	 eventType == TXNotificationTypeNewPrivateMessage	||
@@ -1963,32 +1963,31 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 	 eventType == TXNotificationTypePrivateMessage		||
 	 eventType == TXNotificationTypePrivateNotice);
 
-	if (isTextEvent) {
-		if ([self nicknameIsMyself:nickname]) {
-			return NO;
-		}
-	}
-
-	if (target && text != nil) {
-		if ([self outputRuleMatchedInMessage:text inChannel:target]) {
-			return NO;
-		}
-	}
-
 	IRCChannelConfig *targetConfig = nil;
 
 	if (target) {
 		targetConfig = target.config;
+	}
 
-		if (eventType == TXNotificationTypeHighlight) {
-			if (targetConfig.ignoreHighlights) {
-				return YES;
-			}
-		} else {
-			if (targetConfig.pushNotifications == NO) {
-				return YES;
-			}
-		}
+	TXNotificationEventPolicyInput policyInput = {
+		.terminating = self.isTerminating,
+		.textEvent = isTextEvent,
+		.authoredBySelf = (isTextEvent && [self nicknameIsMyself:nickname]),
+		.outputRuleMatched = (target && text != nil && [self outputRuleMatchedInMessage:text inChannel:target]),
+		.hasTarget = (target != nil),
+		.highlightEvent = (eventType == TXNotificationTypeHighlight),
+		.highlightsIgnored = targetConfig.ignoreHighlights,
+		.pushNotificationsEnabled = targetConfig.pushNotifications,
+	};
+
+	TXNotificationEventPolicyResult policyResult = TXNotificationEventPolicyEvaluate(policyInput);
+
+	if (policyResult == TXNotificationEventPolicyResultDrop) {
+		return NO;
+	}
+
+	if (policyResult == TXNotificationEventPolicyResultHandled) {
+		return YES;
 	}
 
 	if ([sharedNotificationController() bounceDockIconForEvent:eventType inChannel:target]) {
@@ -3453,6 +3452,10 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 			else if ([stringInString isEqualToStringIgnoringCase:@"raw off"])
 			{
 				[self destroyRawDataLogQuery];
+			}
+			else if ([stringInString isEqualToStringIgnoringCase:@"notify test"])
+			{
+				[self runNotificationDiagnostic];
 			}
 			else
 			{
@@ -5099,6 +5102,124 @@ NSString * const IRCClientUserNicknameChangedNotification = @"IRCClientUserNickn
 			break;
 		}
 	}
+}
+
+- (void)runNotificationDiagnostic
+{
+	if (self.notificationDiagnosticEvents != nil) {
+		[self printDebugInformation:@"Notification diagnostic already running."];
+		return;
+	}
+
+	self.notificationDiagnosticEvents = @[
+		@{ @"event": @(TXNotificationTypeHighlight), @"lineType": @(TVCLogLineTypePrivateMessage), @"name": @"highlighted private query" },
+		@{ @"event": @(TXNotificationTypePrivateMessage), @"lineType": @(TVCLogLineTypePrivateMessage), @"name": @"private message" },
+		@{ @"event": @(TXNotificationTypeConnect), @"lineType": @(TVCLogLineTypeDebug), @"name": @"connect" },
+		@{ @"event": @(TXNotificationTypeDisconnect), @"lineType": @(TVCLogLineTypeDebug), @"name": @"disconnect" },
+	];
+	self.notificationDiagnosticResults = [NSMutableArray arrayWithCapacity:self.notificationDiagnosticEvents.count];
+	self.notificationDiagnosticEventIndex = 0;
+
+	[self printDebugInformation:@"Offline notification diagnostic started: each synthetic event is emitted once, then confirmed manually."];
+	[self runNextNotificationDiagnosticEvent];
+}
+
+- (void)runNextNotificationDiagnosticEvent
+{
+	if (self.notificationDiagnosticEventIndex >= self.notificationDiagnosticEvents.count) {
+		NSString *summary = [NSString stringWithFormat:@"Notification diagnostic complete: %@.",
+			[self.notificationDiagnosticResults componentsJoinedByString:@"; "]];
+		[self printDebugInformation:summary];
+		self.notificationDiagnosticEvents = nil;
+		self.notificationDiagnosticResults = nil;
+		return;
+	}
+
+	NSDictionary<NSString *, id> *testEvent = self.notificationDiagnosticEvents[self.notificationDiagnosticEventIndex];
+	TXNotificationType eventType = [testEvent[@"event"] unsignedIntegerValue];
+	TVCLogLineType lineType = [testEvent[@"lineType"] unsignedIntegerValue];
+	NSString *eventName = testEvent[@"name"];
+
+	NSUInteger eventIndex = self.notificationDiagnosticEventIndex;
+	IRCChannel *diagnosticTarget = nil;
+	IRCChannel *diagnosticQuery = nil;
+	NSString *windowTitleBeforeDiagnostic = mainWindow().title;
+
+	if (eventType == TXNotificationTypeHighlight || eventType == TXNotificationTypePrivateMessage) {
+		diagnosticQuery = [self findChannelOrCreate:@"TextualTestUser" isPrivateMessage:YES];
+		diagnosticTarget = diagnosticQuery;
+
+		if (diagnosticQuery) {
+			NSString *highlightToken = (self.userNickname.length > 0 ? self.userNickname : @"Guest7");
+			NSString *visualText = [NSString stringWithFormat:@"NOTIFICATION_TEST_HIGHLIGHT — %@", highlightToken];
+			[self print:visualText
+					 by:@"TextualTestUser"
+			 inChannel:diagnosticQuery
+				 asType:TVCLogLineTypePrivateMessage
+				 command:@"PRIVMSG"];
+		}
+	}
+
+	TXNotificationType emittedEventType = eventType;
+
+	/* A highlight requires a channel. When the diagnostic is run while
+	 * disconnected, use the private-message path so the test remains safe. */
+	if (eventType == TXNotificationTypeHighlight && diagnosticTarget == nil) {
+		emittedEventType = TXNotificationTypePrivateMessage;
+	}
+
+	NSString *eventNickname = (emittedEventType == TXNotificationTypeHighlight || emittedEventType == TXNotificationTypePrivateMessage) ? @"TextualTestUser" : nil;
+	NSString *eventText = (emittedEventType == TXNotificationTypeHighlight || emittedEventType == TXNotificationTypePrivateMessage) ? @"Textual notification diagnostic event" : nil;
+
+	if (eventType == TXNotificationTypeConnect || eventType == TXNotificationTypeDisconnect) {
+		NSString *titleSuffix = (eventType == TXNotificationTypeConnect ? @"CONNECT" : @"DISCONNECT");
+		mainWindow().title = [NSString stringWithFormat:@"%@ — notification diagnostic: %@", windowTitleBeforeDiagnostic, titleSuffix];
+		[self printDebugInformation:[NSString stringWithFormat:@"Notification diagnostic visual cue: window title changed to %@.", mainWindow().title]];
+	}
+
+	/* Keep the user confirmation responsive even if an effect such as speech
+	 * takes time to return. The diagnostic event itself is independent of the
+	 * confirmation UI and is safe to emit asynchronously here. */
+	dispatch_async(dispatch_get_main_queue(), ^{
+		/* The notification policy intentionally suppresses sound for the
+		 * currently selected channel. Emit first with another item selected,
+		 * then select the synthetic query for visual confirmation. */
+		if (diagnosticTarget && [mainWindow() isItemSelected:diagnosticTarget]) {
+			[mainWindow() select:self];
+		}
+
+		[self notifyEvent:emittedEventType
+				 lineType:lineType
+				   target:diagnosticTarget
+				 nickname:eventNickname
+					 text:eventText
+				 userInfo:nil];
+
+		if (diagnosticQuery) {
+			[mainWindow() select:diagnosticQuery];
+		}
+	});
+
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC * 0.75)), dispatch_get_main_queue(), ^{
+		[NSApp activateIgnoringOtherApps:YES];
+		[self printDebugInformation:[NSString stringWithFormat:@"Notification diagnostic asking for %@.", eventName]];
+
+		NSAlert *alert = [NSAlert new];
+		alert.alertStyle = NSAlertStyleInformational;
+		alert.messageText = @"Notification diagnostic";
+		alert.informativeText = [NSString stringWithFormat:@"Event ‘%@’ was emitted. Did you see or hear the expected notification?", eventName];
+		[alert addButtonWithTitle:@"Sí"];
+		[alert addButtonWithTitle:@"No"];
+
+		NSModalResponse response = [alert runModal];
+		NSString *answer = (response == NSAlertFirstButtonReturn ? @"yes" : @"no");
+		if (eventType == TXNotificationTypeConnect || eventType == TXNotificationTypeDisconnect) {
+			mainWindow().title = windowTitleBeforeDiagnostic;
+		}
+		[self.notificationDiagnosticResults addObject:[NSString stringWithFormat:@"%@=%@", eventName, answer]];
+		self.notificationDiagnosticEventIndex = eventIndex + 1;
+		[self runNextNotificationDiagnosticEvent];
+	});
 }
 
 - (void)sendCommand:(NSString *)command withData:(NSString *)data

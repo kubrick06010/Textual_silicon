@@ -44,6 +44,9 @@
 		A10000000000000000000001 /* IRCMessageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* IRCMessageTests.m */; };
 		B10000000000000000000001 /* TPCPreferencesImportExportTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* TPCPreferencesImportExportTests.m */; };
 		C10000000000000000000001 /* TVCLogMessagePresentationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000003 /* TVCLogMessagePresentationTests.m */; };
+		D10000000000000000000001 /* TXNotificationEventPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000004 /* TXNotificationEventPolicy.m */; };
+		D10000000000000000000002 /* TXNotificationEventPolicyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000006 /* TXNotificationEventPolicyTests.m */; };
+		E10000000000000000000001 /* TLONotificationControllerIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000003 /* TLONotificationControllerIntegrationTests.m */; };
 		A10000000000000000000002 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10000000000000000000005 /* XCTest.framework */; };
 		4C06DF2A20EC49A60055D09A /* IRCCommandIndexLocalData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4C3153A020EB676400448776 /* IRCCommandIndexLocalData.plist */; };
 		4C06DF2B20EC49A60055D09A /* IRCCommandIndexRemoteData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4C31539F20EB676400448776 /* IRCCommandIndexRemoteData.plist */; };
@@ -1455,6 +1458,10 @@
 		A10000000000000000000003 /* IRCMessageTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IRCMessageTests.m; sourceTree = "<group>"; };
 		B10000000000000000000003 /* TPCPreferencesImportExportTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TPCPreferencesImportExportTests.m; sourceTree = "<group>"; };
 		C10000000000000000000003 /* TVCLogMessagePresentationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TVCLogMessagePresentationTests.m; sourceTree = "<group>"; };
+		D10000000000000000000004 /* TXNotificationEventPolicy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Classes/Library/TXNotificationEventPolicy.m; sourceTree = "<group>"; };
+		D10000000000000000000005 /* TXNotificationEventPolicy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Classes/Headers/TXNotificationEventPolicy.h; sourceTree = "<group>"; };
+		D10000000000000000000006 /* TXNotificationEventPolicyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TXNotificationEventPolicyTests.m; sourceTree = "<group>"; };
+		E10000000000000000000003 /* TLONotificationControllerIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TLONotificationControllerIntegrationTests.m; sourceTree = "<group>"; };
 		A10000000000000000000004 /* TextualCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TextualCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000005 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 		4C06E13A20EC4AC40055D09A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/TDCServerPropertiesSheet.xib; sourceTree = "<group>"; };
@@ -3617,6 +3624,8 @@
 		A10000000000000000000006 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				E10000000000000000000003 /* TLONotificationControllerIntegrationTests.m */,
+				D10000000000000000000006 /* TXNotificationEventPolicyTests.m */,
 				C10000000000000000000003 /* TVCLogMessagePresentationTests.m */,
 				B10000000000000000000003 /* TPCPreferencesImportExportTests.m */,
 				A60000000000000000000004 /* IRCConnectionEncodingTests.m */,
@@ -4756,6 +4765,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				C10000000000000000000001 /* TVCLogMessagePresentationTests.m in Sources */,
+				D10000000000000000000002 /* TXNotificationEventPolicyTests.m in Sources */,
+				E10000000000000000000001 /* TLONotificationControllerIntegrationTests.m in Sources */,
 				A60000000000000000000001 /* IRCConnectionEncodingTests.m in Sources */,
 				A70000000000000000000001 /* IRCIsonTransportMockTests.m in Sources */,
 				A90000000000000000000003 /* IRCMonitorReplyTests.m in Sources */,
@@ -4847,6 +4858,7 @@
 				4C06E5C620EC553A0055D09A /* IRCChannelMode.m in Sources */,
 				4C06E5C720EC553A0055D09A /* IRCChannelUser.m in Sources */,
 				4C06E5C820EC553A0055D09A /* IRCClient.m in Sources */,
+				D10000000000000000000001 /* TXNotificationEventPolicy.m in Sources */,
 				4C06E5C920EC553A0055D09A /* IRCClientConfig.m in Sources */,
 				4C06E5CA20EC553A0055D09A /* IRCClientRequestedCommands.m in Sources */,
 				4C06E5CB20EC553A0055D09A /* IRCCommandIndex.m in Sources */,

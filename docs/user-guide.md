@@ -61,6 +61,19 @@ The command reference is built from the commands supported by the current applic
 
 Commands can vary with server capabilities, plugins, and build features. When documenting a new command, include its parser behavior and a focused test where possible.
 
+For an offline manual notification smoke test, enter `/debug notify test`.
+Textual emits synthetic highlight, private-message, connect and disconnect
+events without connecting to a server, then asks whether the expected
+notification was seen or heard. It creates a local `TextualTestUser` query and
+inserts `NOTIFICATION_TEST_HIGHLIGHT` with the local nickname for visual
+confirmation. The connect and disconnect cases temporarily mark the window
+title with the corresponding diagnostic state. If no query can be created, the
+highlight case uses the private-message path so the diagnostic remains safe
+while disconnected.
+The final yes/no results are printed in the active conversation. This test
+records the developer's observation; it does not infer success from the absence
+of an error.
+
 ## Keyboard shortcuts
 
 Use the application menus as the authoritative source for the shortcuts enabled by the current build. macOS menu titles and configured key equivalents take precedence over a copied shortcut list. Report a shortcut conflict with the affected menu title and macOS version.

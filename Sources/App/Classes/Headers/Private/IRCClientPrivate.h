@@ -127,6 +127,9 @@ enum {
 - (void)onTimedCommand:(IRCTimedCommand *)timedCommand;
 
 - (void)logFileRecordSessionChanged:(BOOL)toNewSession inChannel:(nullable IRCChannel *)channel;
+
+/* Manual, developer-facing notification smoke test. */
+- (void)runNotificationDiagnostic;
 @end
 
 NS_ASSUME_NONNULL_END
