@@ -2,7 +2,7 @@
 #include "../Common/Textual.xcconfig"
 #include "Enabled Features.xcconfig"
 
-TEXTUAL_BUNDLE_IDENTIFIER = com.codeux.apps.textual
+TEXTUAL_BUNDLE_IDENTIFIER = com.kubrick06010.textual-silicon
 // Use the Textual Silicon development group so Debug preserves the local
 // servers, preferences, and transcript history from the developer build.
 TEXTUAL_GROUP_CONTAINER_IDENTIFIER = com.kubrick06010.textual-silicon.group
