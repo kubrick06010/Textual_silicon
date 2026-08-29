@@ -12,6 +12,7 @@ APP_BUNDLE="$ROOT_DIR/Build Results/Debug/Textual.app"
 APP_BINARY="$APP_BUNDLE/Contents/MacOS/Textual"
 LOG_DIR="$ROOT_DIR/.tmp/Script-Logs"
 BUILD_LOG="$LOG_DIR/build_and_run.log"
+FRAMEWORK_BUILD_LOG="$LOG_DIR/build_frameworks.log"
 DERIVED_DATA_DIR="$ROOT_DIR/.tmp/DerivedData/TextualApp"
 MODULE_CACHE_DIR="$ROOT_DIR/.tmp/ModuleCache"
 
@@ -42,6 +43,24 @@ rm -rf \
 	"$APP_BUNDLE/Contents/PlugIns/TextualCoreTests.app.dSYM"
 
 echo "Building $APP_NAME for arm64…"
+
+echo "Building framework dependencies for arm64…"
+if ! xcodebuild \
+		-project "$PROJECT_PATH" \
+		-target "Build Frameworks" \
+		-configuration Debug \
+		-arch arm64 \
+		TEXTUAL_WORKSPACE_DIR="$ROOT_DIR" \
+		TEXTUAL_WORKSPACE_TEMP_DIR="$ROOT_DIR/.tmp" \
+		TEXTUAL_FRAMEWORK_BUILD_SCHEME=Release \
+		CODE_SIGN_IDENTITY=- \
+		DEVELOPMENT_TEAM= \
+		PROVISIONING_PROFILE_SPECIFIER= \
+		build >"$FRAMEWORK_BUILD_LOG" 2>&1; then
+	echo "Framework build failed. Last diagnostics:" >&2
+	tail -n 80 "$FRAMEWORK_BUILD_LOG" >&2
+	exit 1
+fi
 
 if ! xcodebuild \
 		-project "$PROJECT_PATH" \
