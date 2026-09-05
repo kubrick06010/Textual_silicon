@@ -526,6 +526,12 @@ BOOL TVCLogLineShouldGroupWithPreviousLine(TVCLogLine *currentLine,
 	TVCLogControllerPrintingBlock operationBlock = ^(id operation) {
 		NSString *markTemplate = [TVCLogRenderer renderTemplateNamed:@"historyIndicator"];
 
+		if (markTemplate == nil) {
+			LogToConsoleError("Cannot add history indicator because its template is unavailable");
+
+			return;
+		}
+
 		[self _evaluateFunction:@"_Textual.historyIndicatorAdd" withArguments:@[markTemplate]];
 	};
 
