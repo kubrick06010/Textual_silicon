@@ -36,6 +36,8 @@
  *
  *********************************************************************** */
 
+#import <QuartzCore/QuartzCore.h>
+
 #import "NSObjectHelperPrivate.h"
 #import "TXGlobalModels.h"
 #import "TXMasterController.h"
@@ -129,6 +131,22 @@ static TVCLogLineGroupingFamily TVCLogLineGroupingFamilyForLineType(TVCLogLineTy
 	}
 
 	return TVCLogLineGroupingFamilyNone;
+}
+
+static void TVCLogControllerRetainBackingViewUntilCurrentTransactionCompletes(TVCLogView *backingView)
+{
+	void (^existingCompletionBlock)(void) = [CATransaction completionBlock];
+
+	[CATransaction setCompletionBlock:^{
+		if (existingCompletionBlock) {
+			existingCompletionBlock();
+		}
+
+		/* WebKit registers Core Animation commit handlers for WKWebView. Keep the
+		 backing alive until those handlers have finished to avoid releasing their
+		 callback target from the menu action that removes a channel. */
+		(void)backingView;
+	}];
 }
 
 BOOL TVCLogLineShouldGroupWithPreviousLine(TVCLogLine *currentLine,
@@ -233,8 +251,14 @@ BOOL TVCLogLineShouldGroupWithPreviousLine(TVCLogLine *currentLine,
 
 	self.loaded = NO;
 
-	[self.backingView stopLoading]; // allow view to teardown
+	TVCLogView *backingView = self.backingView;
+
+	[backingView stopLoading]; // allow view to teardown
 	self.backingView = nil;
+
+	if (isTerminatingApplication == NO && backingView.isUsingWebKit2) {
+		TVCLogControllerRetainBackingViewUntilCurrentTransactionCompletes(backingView);
+	}
 
 	[self.printingQueue cancelOperationsForViewController:self];
 
